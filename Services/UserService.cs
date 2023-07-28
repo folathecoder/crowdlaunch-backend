@@ -7,39 +7,43 @@ namespace MARKETPLACEAPI.Services;
 
 public class UserService : IUserService
 {
-    private readonly IMongoCollection<User> _usersCollection;
+  private readonly IMongoCollection<User> _usersCollection;
 
-    public UserService(
-        IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
-    {
-        var mongoClient = new MongoClient(
-            marketPlaceDBSettings.Value.ConnectionString);
+  public UserService(
+      IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
+  {
+    DatabaseConfig databaseConfig = new();
 
-        var mongoDatabase = mongoClient.GetDatabase(
-            marketPlaceDBSettings.Value.DatabaseName);
+    string connectionString = databaseConfig.ConnectionString;
 
-        _usersCollection = mongoDatabase.GetCollection<User>(
-            marketPlaceDBSettings.Value.UserCollectionName);
-    }
+    var mongoClient = new MongoClient(
+        connectionString);
 
-    public async Task<List<User>> GetAsync() =>
-        await _usersCollection.Find(_ => true).ToListAsync();
+    var mongoDatabase = mongoClient.GetDatabase(
+        marketPlaceDBSettings.Value.DatabaseName);
 
-    public async Task<User?> GetAsync(string id) =>
-        await _usersCollection.Find(x => x.userId == id).FirstOrDefaultAsync();
+    _usersCollection = mongoDatabase.GetCollection<User>(
+        marketPlaceDBSettings.Value.UserCollectionName);
+  }
 
-    public async Task CreateAsync(User newUser) =>
-        await _usersCollection.InsertOneAsync(newUser);
+  public async Task<List<User>> GetAsync() =>
+      await _usersCollection.Find(_ => true).ToListAsync();
 
-    public async Task UpdateAsync(string id, User updatedUser) =>
-        await _usersCollection.ReplaceOneAsync(x => x.userId == id, updatedUser);
+  public async Task<User?> GetAsync(string id) =>
+      await _usersCollection.Find(x => x.userId == id).FirstOrDefaultAsync();
 
-    public async Task RemoveAsync(string id) =>
-        await _usersCollection.DeleteOneAsync(x => x.userId == id);
+  public async Task CreateAsync(User newUser) =>
+      await _usersCollection.InsertOneAsync(newUser);
 
-    public async Task<User?> GetUserByWalletAddress(string walletAddress) =>
-        await _usersCollection.Find(x => x.walletAddress == walletAddress).FirstOrDefaultAsync();
+  public async Task UpdateAsync(string id, User updatedUser) =>
+      await _usersCollection.ReplaceOneAsync(x => x.userId == id, updatedUser);
 
-    public async Task<bool> UserExists(string walletAddress) =>
-        await _usersCollection.Find(x => x.walletAddress == walletAddress).AnyAsync();
+  public async Task RemoveAsync(string id) =>
+      await _usersCollection.DeleteOneAsync(x => x.userId == id);
+
+  public async Task<User?> GetUserByWalletAddress(string walletAddress) =>
+      await _usersCollection.Find(x => x.walletAddress == walletAddress).FirstOrDefaultAsync();
+
+  public async Task<bool> UserExists(string walletAddress) =>
+      await _usersCollection.Find(x => x.walletAddress == walletAddress).AnyAsync();
 }

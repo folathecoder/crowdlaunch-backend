@@ -7,43 +7,47 @@ namespace MARKETPLACEAPI.Services;
 
 public class UserNftService : IUserNftService
 {
-    private readonly IMongoCollection<UserNft> _userNftCollection;
+  private readonly IMongoCollection<UserNft> _userNftCollection;
 
-    public UserNftService(
-        IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
-    {
-        var mongoClient = new MongoClient(
-            marketPlaceDBSettings.Value.ConnectionString);
+  public UserNftService(
+      IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
+  {
+    DatabaseConfig databaseConfig = new();
 
-        var mongoDatabase = mongoClient.GetDatabase(
-            marketPlaceDBSettings.Value.DatabaseName);
+    string connectionString = databaseConfig.ConnectionString;
 
-        _userNftCollection = mongoDatabase.GetCollection<UserNft>(
-            marketPlaceDBSettings.Value.UserNftCollectionName);
-    }
+    var mongoClient = new MongoClient(
+        connectionString);
 
-    public async Task<List<UserNft>> GetAsync() =>
-        await _userNftCollection.Find(_ => true).ToListAsync();
+    var mongoDatabase = mongoClient.GetDatabase(
+        marketPlaceDBSettings.Value.DatabaseName);
 
-    public async Task<UserNft?> GetAsync(string id) =>
-        await _userNftCollection.Find(x => x.userNftId == id).FirstOrDefaultAsync();
+    _userNftCollection = mongoDatabase.GetCollection<UserNft>(
+        marketPlaceDBSettings.Value.UserNftCollectionName);
+  }
 
-    public async Task CreateAsync(UserNft newUserNft) =>
-        await _userNftCollection.InsertOneAsync(newUserNft);
+  public async Task<List<UserNft>> GetAsync() =>
+      await _userNftCollection.Find(_ => true).ToListAsync();
 
-    public async Task UpdateAsync(string id, UserNft updatedUserNft) =>
-        await _userNftCollection.ReplaceOneAsync(x => x.userNftId == id, updatedUserNft);
+  public async Task<UserNft?> GetAsync(string id) =>
+      await _userNftCollection.Find(x => x.userNftId == id).FirstOrDefaultAsync();
 
-    public async Task RemoveAsync(string id) =>
-        await _userNftCollection.DeleteOneAsync(x => x.userNftId == id);
+  public async Task CreateAsync(UserNft newUserNft) =>
+      await _userNftCollection.InsertOneAsync(newUserNft);
 
-    public async Task<UserNft?> GetUserNftByNftId(string nftId) =>
-        await _userNftCollection.Find(x => x.nftId == nftId).FirstOrDefaultAsync();
+  public async Task UpdateAsync(string id, UserNft updatedUserNft) =>
+      await _userNftCollection.ReplaceOneAsync(x => x.userNftId == id, updatedUserNft);
 
-    public async Task<List<UserNft>> GetUserNftByUserId(string userId) =>
-        await _userNftCollection.Find(x => x.userId == userId).ToListAsync();
-    
-    public async Task<UserNft?> GetUserNftByUserIdAndNftId(string userId, string nftId) =>
-        await _userNftCollection.Find(x => x.userId == userId && x.nftId == nftId).FirstOrDefaultAsync();
-    
+  public async Task RemoveAsync(string id) =>
+      await _userNftCollection.DeleteOneAsync(x => x.userNftId == id);
+
+  public async Task<UserNft?> GetUserNftByNftId(string nftId) =>
+      await _userNftCollection.Find(x => x.nftId == nftId).FirstOrDefaultAsync();
+
+  public async Task<List<UserNft>> GetUserNftByUserId(string userId) =>
+      await _userNftCollection.Find(x => x.userId == userId).ToListAsync();
+
+  public async Task<UserNft?> GetUserNftByUserIdAndNftId(string userId, string nftId) =>
+      await _userNftCollection.Find(x => x.userId == userId && x.nftId == nftId).FirstOrDefaultAsync();
+
 }

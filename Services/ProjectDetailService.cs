@@ -12,8 +12,12 @@ public class ProjectDetailService : IProjectDetailService
   public ProjectDetailService(
       IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
   {
+    DatabaseConfig databaseConfig = new();
+
+    string connectionString = databaseConfig.ConnectionString;
+
     var mongoClient = new MongoClient(
-        marketPlaceDBSettings.Value.ConnectionString);
+        connectionString);
 
     var mongoDatabase = mongoClient.GetDatabase(
         marketPlaceDBSettings.Value.DatabaseName);

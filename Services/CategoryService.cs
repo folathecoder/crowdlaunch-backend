@@ -7,33 +7,37 @@ namespace MARKETPLACEAPI.Services;
 
 public class CategoryService : IDefaultService<Category>
 {
-    private readonly IMongoCollection<Category> _categoriesCollection;
+  private readonly IMongoCollection<Category> _categoriesCollection;
 
-    public CategoryService(
-        IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
-    {
-        var mongoClient = new MongoClient(
-            marketPlaceDBSettings.Value.ConnectionString);
+  public CategoryService(
+      IOptions<MarketPlaceDBSettings> marketPlaceDBSettings)
+  {
+    DatabaseConfig databaseConfig = new();
 
-        var mongoDatabase = mongoClient.GetDatabase(
-            marketPlaceDBSettings.Value.DatabaseName);
+    string connectionString = databaseConfig.ConnectionString;
 
-        _categoriesCollection = mongoDatabase.GetCollection<Category>(
-            marketPlaceDBSettings.Value.CategoryCollectionName);
-    }
+    var mongoClient = new MongoClient(
+        connectionString);
 
-    public async Task<List<Category>> GetAsync() =>
-        await _categoriesCollection.Find(_ => true).ToListAsync();
+    var mongoDatabase = mongoClient.GetDatabase(
+        marketPlaceDBSettings.Value.DatabaseName);
 
-    public async Task<Category?> GetAsync(string id) =>
-        await _categoriesCollection.Find(x => x.categoryId == id).FirstOrDefaultAsync();
+    _categoriesCollection = mongoDatabase.GetCollection<Category>(
+        marketPlaceDBSettings.Value.CategoryCollectionName);
+  }
 
-    public async Task CreateAsync(Category newCategory) =>
-        await _categoriesCollection.InsertOneAsync(newCategory);
+  public async Task<List<Category>> GetAsync() =>
+      await _categoriesCollection.Find(_ => true).ToListAsync();
 
-    public async Task UpdateAsync(string id, Category updatedCategory) =>
-        await _categoriesCollection.ReplaceOneAsync(x => x.categoryId == id, updatedCategory);
+  public async Task<Category?> GetAsync(string id) =>
+      await _categoriesCollection.Find(x => x.categoryId == id).FirstOrDefaultAsync();
 
-    public async Task RemoveAsync(string id) =>
-        await _categoriesCollection.DeleteOneAsync(x => x.categoryId == id);
+  public async Task CreateAsync(Category newCategory) =>
+      await _categoriesCollection.InsertOneAsync(newCategory);
+
+  public async Task UpdateAsync(string id, Category updatedCategory) =>
+      await _categoriesCollection.ReplaceOneAsync(x => x.categoryId == id, updatedCategory);
+
+  public async Task RemoveAsync(string id) =>
+      await _categoriesCollection.DeleteOneAsync(x => x.categoryId == id);
 }
