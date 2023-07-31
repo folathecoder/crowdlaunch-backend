@@ -3,7 +3,8 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MARKETPLACEAPI.Models;
 
-public class Project: DefaultModel {
+public class Project : DefaultModel
+{
 
   [BsonId]
   [BsonRepresentation(BsonType.ObjectId)]

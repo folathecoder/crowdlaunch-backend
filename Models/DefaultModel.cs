@@ -1,9 +1,10 @@
 namespace MARKETPLACEAPI.Models;
 
-public enum Status {
-    Completed,
-    Failed,
-  }
+public enum Status
+{
+  Completed,
+  Failed,
+}
 
 
 public class DefaultModel
