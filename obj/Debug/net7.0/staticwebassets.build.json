@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "UhaJB1Uo9e9ymH/5v+V0yqwMXwO56bk8PPxR+A2wGow=",
+  "Source": "crowdlaunch-backend",
+  "BasePath": "_content/crowdlaunch-backend",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
