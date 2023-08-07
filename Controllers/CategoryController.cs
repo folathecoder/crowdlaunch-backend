@@ -9,7 +9,6 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/categories/[controller]")]
 public class CategoryController : ControllerBase
 {
@@ -36,6 +35,7 @@ public class CategoryController : ControllerBase
   }
 
   [HttpPost]
+  [Authorize]
 
   public async Task<IActionResult> Post(CategoryCreateDto newCategory)
   {
@@ -50,6 +50,7 @@ public class CategoryController : ControllerBase
   }
 
   [HttpPatch("{id:length(24)}")]
+  [Authorize]
   public async Task<IActionResult> Update(string id, CategoryUpdateDto updatedCategory)
   {
     var category = await _categoryService.GetAsync(id);
@@ -69,6 +70,7 @@ public class CategoryController : ControllerBase
   }
 
   [HttpDelete("{id:length(24)}")]
+  [Authorize]
   public async Task<IActionResult> Delete(string id)
   {
     var category = await _categoryService.GetAsync(id);

@@ -9,7 +9,6 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/user/[controller]")]
 public class NftController : ControllerBase
 {
@@ -45,6 +44,7 @@ public class NftController : ControllerBase
   }
 
   [HttpPost]
+  [Authorize]
   public async Task<IActionResult> Post(NftCreateDto newNft)
   {
     var userId = HttpContext.Request.Headers["userId"].ToString();
@@ -65,6 +65,7 @@ public class NftController : ControllerBase
   }
 
   [HttpPatch("{id:length(24)}")]
+  [Authorize]
   public async Task<IActionResult> Update(string id, NftUpdateDto updatedNft)
   {
     var nft = await _nftService.GetAsync(id);
@@ -86,6 +87,7 @@ public class NftController : ControllerBase
   }
 
   [HttpDelete("{id:length(24)}")]
+  [Authorize]
   public async Task<IActionResult> Delete(string id)
   {
     var nft = await _nftService.GetAsync(id);
