@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "UIiLG3Zf1Ed1M2hulzMBFQb0KgXf2ZJ0SSJ5ARL0B/LuHP7aQt40SvpJQ4g5X07wDM/XayM2/rnK3oHQAqB+Og==",
+  "dgSpecHash": "N0GFH6i3zUwv4Nm07zobjdbnY9HqwVW4xs1+caUErckdbqZg0+ew8TaPC7sZ93JnuyQXH0qPUxPSqGapS0PKVg==",
   "success": true,
-  "projectFilePath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/crowdlaunch-backend.csproj",
+  "projectFilePath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/src/crowdlaunch-backend.csproj",
   "expectedPackageFiles": [
     "/Users/user/.nuget/packages/awssdk.core/3.7.100.14/awssdk.core.3.7.100.14.nupkg.sha512",
     "/Users/user/.nuget/packages/awssdk.securitytoken/3.7.100.14/awssdk.securitytoken.3.7.100.14.nupkg.sha512",

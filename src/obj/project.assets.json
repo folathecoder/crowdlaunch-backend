@@ -6377,11 +6377,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/crowdlaunch-backend.csproj",
+      "projectUniqueName": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/src/crowdlaunch-backend.csproj",
       "projectName": "crowdlaunch-backend",
-      "projectPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/crowdlaunch-backend.csproj",
+      "projectPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/src/crowdlaunch-backend.csproj",
       "packagesPath": "/Users/user/.nuget/packages/",
-      "outputPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/obj/",
+      "outputPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/src/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/user/.nuget/NuGet/NuGet.Config"
