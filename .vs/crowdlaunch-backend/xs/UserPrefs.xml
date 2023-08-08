@@ -1,0 +1,35 @@
+﻿<Properties StartupConfiguration="{9963B397-0D8F-4C87-B0CE-2BDB75C5480B}|BookStoreApi">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.crowdlaunch-backend PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Helpers/DatabaseConfig.cs">
+    <Files>
+      <File FileName="Startup.cs" />
+      <File FileName=".env" Line="1" Column="13" />
+      <File FileName="Program.cs" Line="20" Column="1" />
+      <File FileName="appsettings.json" />
+      <File FileName="Helpers/DatabaseConfig.cs" Line="17" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="crowdlaunch-backend" expanded="True">
+            <Node name="crowdlaunch-backend" expanded="True" selected="True">
+              <Node name="Dependencies" expanded="True">
+                <Node name="PackageDependencies" expanded="True" />
+              </Node>
+              <Node name="Helpers" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+</Properties>
