@@ -13,139 +13,138 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/nftlikes/[controller]")]
 public class NftLikeController : ControllerBase
 {
-  private readonly NftLikeService _nftLikeService;
-  private readonly NftService _nftService;
+    private readonly NftLikeService _nftLikeService;
+    private readonly NftService _nftService;
 
-  public NftLikeController(NftLikeService nftLikeService, NftService nftService)
-  {
+    public NftLikeController(NftLikeService nftLikeService, NftService nftService)  {
     _nftLikeService = nftLikeService;
     _nftService = nftService;
   }
 
-  [HttpGet]
-  public async Task<List<NftLike>> Get() =>
-      await _nftLikeService.GetAsync();
+    [HttpGet]
+    public async Task<List<NftLike>> Get() =>
+        await _nftLikeService.GetAsync();
 
-  [HttpGet("{id:length(24)}")]
-  public async Task<ActionResult<NftLike>> Get(string id)
-  {
-    var nftLike = await _nftLikeService.GetAsync(id);
-
-    if (nftLike is null)
+    [HttpGet("{id:length(24)}")]
+    public async Task<ActionResult<NftLike>> Get(string id)
     {
-      return NotFound();
+        var nftLike = await _nftLikeService.GetAsync(id);
+
+        if (nftLike is null)
+        {
+            return NotFound();
+        }
+
+        return nftLike;
     }
 
-    return nftLike;
-  }
-
-  [HttpPost]
-  [ProducesResponseType(StatusCodes.Status201Created)]
-  [ProducesResponseType(StatusCodes.Status400BadRequest)]
-  [ProducesResponseType(StatusCodes.Status404NotFound)]
-  public async Task<IActionResult> Post(NftLikeCreateDto newNftLike)
-  {
-    var userId = HttpContext.Request.Headers["userId"].ToString();
-    var nft = await _nftService.GetAsync(newNftLike.nftId);
-
-    if (nft is null)
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Post(NftLikeCreateDto newNftLike)
     {
-      return NotFound("NFT not found");
+        var userId = HttpContext.Request.Headers["userId"].ToString();
+        var nft = await _nftService.GetAsync(newNftLike.nftId);
+
+        if (nft is null)
+        {
+            return NotFound("NFT not found");
+        }
+
+        var nftLike = await _nftLikeService.GetNftLikeByUserIdAndNftId(userId, newNftLike.nftId);
+
+        if (nftLike != null)
+        {
+            return BadRequest("You already liked this NFT");
+        }
+
+        var newLike = new NftLike
+        {
+            nftId = newNftLike.nftId,
+            userId = userId,
+        };
+        await _nftLikeService.CreateAsync(newLike);
+
+        nft.noOfLikes += 1;
+        nft.updatedAt = DateTime.UtcNow;
+        await _nftService.UpdateAsync(nft.nftId!, nft);
+
+        return CreatedAtAction(nameof(Get), new { id = newLike.nftLikeId }, newLike);
     }
 
-    var nftLike = await _nftLikeService.GetNftLikeByUserIdAndNftId(userId, newNftLike.nftId);
-
-    if (nftLike != null)
+    [HttpPatch("{id:length(24)}")]
+    public async Task<IActionResult> Update(string id, NftLike updatedNftLike)
     {
-      return BadRequest("You already liked this NFT");
+        var nftLike = await _nftLikeService.GetAsync(id);
+
+        if (nftLike is null)
+        {
+            return NotFound();
+        }
+
+        updatedNftLike.nftLikeId = nftLike.nftLikeId;
+
+        await _nftLikeService.UpdateAsync(id, updatedNftLike);
+
+        return NoContent();
     }
 
-    var newLike = new NftLike
-    {
-      nftId = newNftLike.nftId,
-      userId = userId,
-    };
-    await _nftLikeService.CreateAsync(newLike);
+    [HttpDelete("{id:length(24)}")]
+    public async Task<IActionResult> Delete(string id)
+    {   
+        var userId = HttpContext.Request.Headers["userId"].ToString();
+        var nftLike = await _nftLikeService.GetAsync(id);
 
-    nft.noOfLikes += 1;
-    nft.updatedAt = DateTime.UtcNow;
-    await _nftService.UpdateAsync(nft.nftId!, nft);
+        if (nftLike is null)
+        {
+            return NotFound();
+        }
 
-    return CreatedAtAction(nameof(Get), new { id = newLike.nftLikeId }, newLike);
-  }
+        if (nftLike.userId != userId)
+        {
+            return BadRequest("You can only delete your own likes");
+        }
 
-  [HttpPatch("{id:length(24)}")]
-  public async Task<IActionResult> Update(string id, NftLike updatedNftLike)
-  {
-    var nftLike = await _nftLikeService.GetAsync(id);
+        var nft = await _nftService.GetAsync(nftLike.nftId!);
 
-    if (nftLike is null)
-    {
-      return NotFound();
+        await _nftLikeService.RemoveAsync(id);
+
+        nft!.noOfLikes -= 1;
+        nft.updatedAt = DateTime.UtcNow;
+        await _nftService.UpdateAsync(nft.nftId!, nft);
+
+        return NoContent();
     }
 
-    updatedNftLike.nftLikeId = nftLike.nftLikeId;
-
-    await _nftLikeService.UpdateAsync(id, updatedNftLike);
-
-    return NoContent();
-  }
-
-  [HttpDelete("{id:length(24)}")]
-  public async Task<IActionResult> Delete(string id)
-  {
-    var userId = HttpContext.Request.Headers["userId"].ToString();
-    var nftLike = await _nftLikeService.GetAsync(id);
-
-    if (nftLike is null)
+    [HttpGet("get-by-nft-id")]
+    public async Task<ActionResult<NftLike>> GetNftLikeByNftId([FromQuery] string nftId)
     {
-      return NotFound();
+        var nftLike = await _nftLikeService.GetNftLikeByNftId(nftId);
+
+        if (nftLike is null)
+        {
+            return NotFound();
+        }
+
+        return nftLike;
     }
 
-    if (nftLike.userId != userId)
+    [HttpGet("get-by-user-id")]
+    public async Task<List<NftLike>> GetNftLikesByUserId([FromQuery] string userId) =>
+        await _nftLikeService.GetNftLikesByUserId(userId);
+
+    
+    [HttpGet("get-by-user-id-and-nft-id")]
+    public async Task<ActionResult<NftLike>> GetNftLikeByUserIdAndNftId([FromQuery] string userId, [FromQuery] string nftId)
     {
-      return BadRequest("You can only delete your own likes");
+        var nftLike = await _nftLikeService.GetNftLikeByUserIdAndNftId(userId, nftId);
+
+        if (nftLike is null)
+        {
+            return NotFound();
+        }
+
+        return nftLike;
     }
-
-    var nft = await _nftService.GetAsync(nftLike.nftId!);
-
-    await _nftLikeService.RemoveAsync(id);
-
-    nft!.noOfLikes -= 1;
-    nft.updatedAt = DateTime.UtcNow;
-    await _nftService.UpdateAsync(nft.nftId!, nft);
-
-    return NoContent();
-  }
-
-  [HttpGet("get-by-nft-id")]
-  public async Task<ActionResult<NftLike>> GetNftLikeByNftId([FromQuery] string nftId)
-  {
-    var nftLike = await _nftLikeService.GetNftLikeByNftId(nftId);
-
-    if (nftLike is null)
-    {
-      return NotFound();
-    }
-
-    return nftLike;
-  }
-
-  [HttpGet("get-by-user-id")]
-  public async Task<List<NftLike>> GetNftLikesByUserId([FromQuery] string userId) =>
-      await _nftLikeService.GetNftLikesByUserId(userId);
-
-
-  [HttpGet("get-by-user-id-and-nft-id")]
-  public async Task<ActionResult<NftLike>> GetNftLikeByUserIdAndNftId([FromQuery] string userId, [FromQuery] string nftId)
-  {
-    var nftLike = await _nftLikeService.GetNftLikeByUserIdAndNftId(userId, nftId);
-
-    if (nftLike is null)
-    {
-      return NotFound();
-    }
-
-    return nftLike;
-  }
 }

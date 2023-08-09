@@ -20,7 +20,7 @@ public class AuthController : ControllerBase
     _userService = userService;
     _authService = authService;
   }
-
+  
 
   [HttpPost("register")]
   [ProducesResponseType(typeof(SignInResponseDto), 201)]
@@ -40,8 +40,8 @@ public class AuthController : ControllerBase
         token = _authService.GenerateToken(user),
       };
       return Ok(res);
-    }
-
+    } 
+    
     var newUser = new User
     {
       userName = regDto.userName,

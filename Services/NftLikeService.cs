@@ -16,7 +16,7 @@ public class NftLikeService : INftLikeService
     DatabaseConfig databaseConfig = new();
 
     string connectionString = databaseConfig.ConnectionString;
-
+    
     var mongoClient = new MongoClient(
         connectionString);
 
@@ -36,13 +36,12 @@ public class NftLikeService : INftLikeService
   public async Task<NftLike?> GetAsync(string id) =>
       await _nftLikeCollection.Find(x => x.nftLikeId == id).FirstOrDefaultAsync();
 
-  public async Task CreateAsync(NftLike newNftLike)
-  {
-    await _nftLikeCollection.InsertOneAsync(newNftLike);
-    var nft = await _nftCollection.Find(x => x.nftId == newNftLike.nftId).FirstOrDefaultAsync();
-    nft.noOfLikes += 1;
-    await _nftCollection.ReplaceOneAsync(x => x.nftId == nft.nftId, nft);
-  }
+  public async Task CreateAsync(NftLike newNftLike) {
+        await _nftLikeCollection.InsertOneAsync(newNftLike);
+        var nft = await _nftCollection.Find(x => x.nftId == newNftLike.nftId).FirstOrDefaultAsync();
+        nft.noOfLikes += 1;
+        await _nftCollection.ReplaceOneAsync(x => x.nftId == nft.nftId, nft);
+    }
 
   public async Task UpdateAsync(string id, NftLike updatedNftLike) =>
         await _nftLikeCollection.ReplaceOneAsync(x => x.nftLikeId == id, updatedNftLike);
@@ -52,13 +51,13 @@ public class NftLikeService : INftLikeService
 
   public async Task<NftLike?> GetNftLikeByNftId(string nftId) =>
       await _nftLikeCollection.Find(x => x.nftId == nftId).FirstOrDefaultAsync();
-
+  
 
   public async Task<List<NftLike>> GetNftLikesByUserId(string userId) =>
       await _nftLikeCollection.Find(x => x.userId == userId).ToListAsync();
-
+  
   public async Task<NftLike?> GetNftLikeByUserIdAndNftId(string userId, string nftId) =>
       await _nftLikeCollection.Find(x => x.userId == userId && x.nftId == nftId).FirstOrDefaultAsync();
-
-
+    
+    
 }

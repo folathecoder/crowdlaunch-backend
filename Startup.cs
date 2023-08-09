@@ -20,36 +20,35 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // Add your services configuration here if needed.
-        services.Configure<MarketPlaceDBSettings>(
-          _configuration.GetSection("MarketPlaceDatabase"));
-        services.AddSingleton<UserService>();
-        services.AddSingleton<ProjectService>();
-        services.AddSingleton<NftService>();
-        services.AddSingleton<UserNftService>();
-        services.AddSingleton<ProjectLikeService>();
-        services.AddSingleton<NftLikeService>();
-        services.AddSingleton<PortfolioService>();
-        services.AddSingleton<ProjectDetailService>();
-        services.AddSingleton<ProjectUpdateService>();
-        services.AddSingleton<CategoryService>();
-        services.AddSingleton<AuthService>();
-        services.AddControllers();
-        // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-        services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen(
-            options =>
-            {
-                options.SwaggerDoc("v1", new() { Title = "CROWDLAUNCH", Version = "v1" });
-                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    In = ParameterLocation.Header,
-                    Description = "Enter a vailid token",
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
-                    BearerFormat = "JWT",
-                    Scheme = "Bearer"
-                });
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement {
+          services.Configure<MarketPlaceDBSettings>(
+            _configuration.GetSection("MarketPlaceDatabase"));
+          services.AddSingleton<UserService>();
+          services.AddSingleton<ProjectService>();
+          services.AddSingleton<NftService>();
+          services.AddSingleton<UserNftService>();
+          services.AddSingleton<ProjectLikeService>();
+          services.AddSingleton<NftLikeService>();
+          services.AddSingleton<PortfolioService>();
+          services.AddSingleton<ProjectDetailService>();
+          services.AddSingleton<ProjectUpdateService>();
+          services.AddSingleton<CategoryService>();
+          services.AddSingleton<AuthService>();
+          services.AddControllers();
+          // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+          services.AddEndpointsApiExplorer();
+          services.AddSwaggerGen(
+              options =>
+              {
+                  options.SwaggerDoc("v1", new() { Title = "CROWDLAUNCH", Version = "v1" });
+                  options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+                      In = ParameterLocation.Header,
+                      Description = "Enter a vailid token",
+                      Name = "Authorization",
+                      Type = SecuritySchemeType.Http,
+                      BearerFormat = "JWT",
+                      Scheme = "Bearer"
+                  });
+                  options.AddSecurityRequirement(new OpenApiSecurityRequirement {
                       {
                           new OpenApiSecurityScheme {
                               Reference = new OpenApiReference {
@@ -59,25 +58,24 @@ public class Startup
                           },
                           new string[] {}
                       }
-                });
-            }
-        );
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-          .AddJwtBearer(options =>
-          {
-              options.TokenValidationParameters = new TokenValidationParameters
-              {
-                  ValidateIssuer = true,
-                  ValidateAudience = true,
-                  ValidateLifetime = true,
-                  ValidateIssuerSigningKey = true,
+                  });
+              }
+          );
+          services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options => {
+                  options.TokenValidationParameters = new TokenValidationParameters
+                  {
+                      ValidateIssuer = true,
+                      ValidateAudience = true,
+                      ValidateLifetime = true,
+                      ValidateIssuerSigningKey = true,
 
-                  ValidIssuer = _configuration["Jwt:Issuer"],
-                  ValidAudience = _configuration["Jwt:Issuer"],
-                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")!))
-              };
-          }
-        );
+                      ValidIssuer = _configuration["Jwt:Issuer"],
+                      ValidAudience = _configuration["Jwt:Issuer"],
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")!))
+                  };
+              }
+          );
 
         services.AddCors(options =>
         {
@@ -94,9 +92,13 @@ public class Startup
     {
         // Other middleware and configurations...
         // Configure the HTTP request pipeline.
-
         app.UseSwagger();
         app.UseSwaggerUI();
+
+
+    
+
+
         app.UseHttpsRedirection();
 
         // using Microsoft.AspNetCore.HttpOverrides;
@@ -124,6 +126,8 @@ public class Startup
             endpoints.MapControllers();
         });
 
+        
+        
         // The following middleware will only execute if an exception is not thrown.
         // You can continue adding other middleware to the pipeline here.
     }
