@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "acUJSpJyNi37t9LcZljWbgfdKcz7aqs6pVvfhUPHWtms9ffPFlt1rUZJipd7OMPJUuyRm0aEhmmWPRTR+AMgDQ==",
+  "dgSpecHash": "UIiLG3Zf1Ed1M2hulzMBFQb0KgXf2ZJ0SSJ5ARL0B/LuHP7aQt40SvpJQ4g5X07wDM/XayM2/rnK3oHQAqB+Og==",
   "success": true,
   "projectFilePath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/crowdlaunch-backend.csproj",
   "expectedPackageFiles": [
@@ -8,8 +8,8 @@
     "/Users/user/.nuget/packages/awssdk.securitytoken/3.7.100.14/awssdk.securitytoken.3.7.100.14.nupkg.sha512",
     "/Users/user/.nuget/packages/dnsclient/1.6.1/dnsclient.1.6.1.nupkg.sha512",
     "/Users/user/.nuget/packages/dotnetenv/2.5.0/dotnetenv.2.5.0.nupkg.sha512",
-    "/Users/user/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/7.0.10/microsoft.aspnetcore.authentication.jwtbearer.7.0.10.nupkg.sha512",
-    "/Users/user/.nuget/packages/microsoft.aspnetcore.openapi/7.0.10/microsoft.aspnetcore.openapi.7.0.10.nupkg.sha512",
+    "/Users/user/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/7.0.9/microsoft.aspnetcore.authentication.jwtbearer.7.0.9.nupkg.sha512",
+    "/Users/user/.nuget/packages/microsoft.aspnetcore.openapi/7.0.1/microsoft.aspnetcore.openapi.7.0.1.nupkg.sha512",
     "/Users/user/.nuget/packages/microsoft.csharp/4.5.0/microsoft.csharp.4.5.0.nupkg.sha512",
     "/Users/user/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
     "/Users/user/.nuget/packages/microsoft.extensions.configuration/1.1.2/microsoft.extensions.configuration.1.1.2.nupkg.sha512",
