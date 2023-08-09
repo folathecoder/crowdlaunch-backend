@@ -9,6 +9,6 @@ public class DatabaseConfig
 
         // Use the retrieved password to build the connection string or perform other configurations.
         // For example:
-        ConnectionString = $"mongodb+srv://balogungideon12:{dbPassword}@cluster0.hzkz0ot.mongodb.net/?retryWrites=true&w=majority";
+        ConnectionString = $"mongodb+srv://folathecoder:{dbPassword}@cluster0.4ybjgb0.mongodb.net/?retryWrites=true&w=majority";
     }
 }

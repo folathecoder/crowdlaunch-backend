@@ -1,15 +1,15 @@
-# fly.toml app configuration file generated for crowdlaunch on 2023-08-09T09:16:29+01:00
+# fly.toml app configuration file generated for crowdlaunch-backend on 2023-08-09T13:01:45+01:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "crowdlaunch"
+app = "crowdlaunch-backend"
 primary_region = "lhr"
 
 [build]
 
 [env]
-  DB_PASSWORD = "JiTIjugHfVMJzsEo"
+  DB_PASSWORD = "iBpY5H8w8M4MzBP"
   JWT_KEY = "Thisisaverylongkey2432fgnfnd5ytrjgrg544gns"
 
 [http_service]
