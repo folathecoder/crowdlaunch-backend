@@ -22,7 +22,7 @@ public class AuthService : IAuthService
 
   public string GenerateToken(User user)
   {
-    string jwtKey = Environment.GetEnvironmentVariable("JWT_KEY") ?? throw new Exception("JWT_KEY not found");
+    string jwtKey = Environment.GetEnvironmentVariable("Thisisaverylongkey2432fgnfnd5ytrjgrg544gns") ?? throw new Exception("JWT_KEY not found");
     var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
     var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
     var claims = new[]
