@@ -8,6 +8,8 @@ public class User : DefaultModel {
     [BsonRepresentation(BsonType.ObjectId)]
     public string? userId { get; set; }
     public string? userName { get; set; }
+    public string? userProfileImage { get; set; }
     public string? walletAddress { get; set; }
     public Socials? socials { get; set; }
+
 }

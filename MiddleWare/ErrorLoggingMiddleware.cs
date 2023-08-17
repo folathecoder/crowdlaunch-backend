@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 public class ExceptionLoggingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -27,6 +29,17 @@ public class ExceptionLoggingMiddleware
         try
         {
             File.AppendAllText(_logFilePath, $"{DateTime.Now} - {ex.ToString()}{Environment.NewLine}");
+            // TODO: Log the exception to a database.
+            // log to the default logger
+            var logger = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            }).CreateLogger<ExceptionLoggingMiddleware>();
+
+            logger.LogError(ex, "An exception was thrown while processing the request.");
+
+            
+
         }
         catch
         {

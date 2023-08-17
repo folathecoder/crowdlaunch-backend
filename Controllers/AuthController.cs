@@ -1,7 +1,10 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
+using MARKETPLACEAPI.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
+
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -12,13 +15,19 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/auth/[controller]")]
 public class AuthController : ControllerBase
 {
-  private readonly UserService _userService;
-  private readonly AuthService _authService;
+  private readonly IUserService _userService;
+  private readonly IAuthService _authService;
+  
+  private readonly IConfiguration _config;
+  private readonly IMapper _mapper;
 
-  public AuthController(UserService userService, AuthService authService)
+  public AuthController(IUserService userService, IAuthService authService, IConfiguration config, IMapper mapper)
   {
     _userService = userService;
     _authService = authService;
+    _config = config;
+    _mapper = mapper;
+
   }
   
 
@@ -27,6 +36,7 @@ public class AuthController : ControllerBase
   public async Task<IActionResult> Register(SignInRegisterDto regDto)
   {
     var user = await _userService.GetUserByWalletAddress(regDto.walletAddress);
+    TokenHelper _tokenHelper = new TokenHelper(_config);
     if (user != null)
     {
       var res = new SignInResponseDto
@@ -37,17 +47,12 @@ public class AuthController : ControllerBase
         accountExists = true,
         invalidAddress = false,
         errorMessage = null,
-        token = _authService.GenerateToken(user),
+        token = _tokenHelper.GenerateToken(user),
       };
       return Ok(res);
     } 
     
-    var newUser = new User
-    {
-      userName = regDto.userName,
-      walletAddress = regDto.walletAddress,
-      socials = regDto.socials,
-    };
+    var newUser = _mapper.Map<User>(regDto);
     await _userService.CreateAsync(newUser);
 
     var response = new SignInResponseDto
@@ -58,7 +63,7 @@ public class AuthController : ControllerBase
       accountExists = false,
       invalidAddress = false,
       errorMessage = null,
-      token = _authService.GenerateToken(newUser),
+      token = _tokenHelper.GenerateToken(newUser),
     };
 
     return Ok(response);
@@ -83,8 +88,8 @@ public class AuthController : ControllerBase
         errorMessage = "Invalid wallet address",
       });
     }
-
-    var token = _authService.GenerateToken(user);
+    TokenHelper _tokenHelper = new TokenHelper(_config);
+    var token = _tokenHelper.GenerateToken(user);
 
     return Ok(new SignInResponseDto
     {

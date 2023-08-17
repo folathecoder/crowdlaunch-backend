@@ -27,7 +27,7 @@ public class UserNftService : IUserNftService
             marketPlaceDBSettings.Value.UserNftCollectionName);
     }
 
-    public async Task<List<UserNft>> GetAsync() =>
+    public async Task<IList<UserNft>> GetAsync() =>
         await _userNftCollection.Find(_ => true).ToListAsync();
 
     public async Task<UserNft?> GetAsync(string id) =>
@@ -45,7 +45,7 @@ public class UserNftService : IUserNftService
     public async Task<UserNft?> GetUserNftByNftId(string nftId) =>
         await _userNftCollection.Find(x => x.nftId == nftId).FirstOrDefaultAsync();
 
-    public async Task<List<UserNft>> GetUserNftByUserId(string userId) =>
+    public async Task<IList<UserNft>> GetUserNftByUserId(string userId) =>
         await _userNftCollection.Find(x => x.userId == userId).ToListAsync();
     
     public async Task<UserNft?> GetUserNftByUserIdAndNftId(string userId, string nftId) =>

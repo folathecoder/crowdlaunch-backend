@@ -27,7 +27,7 @@ public class ProjectDetailService : IProjectDetailService
         marketPlaceDBSettings.Value.ProjectDetailCollectionName);
   }
 
-  public async Task<List<ProjectDetail>> GetAsync() =>
+  public async Task<IList<ProjectDetail>> GetAsync() =>
       await _projectDetailCollection.Find(_ => true).ToListAsync();
 
   public async Task<ProjectDetail?> GetAsync(string id) =>

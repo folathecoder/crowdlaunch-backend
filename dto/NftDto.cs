@@ -7,6 +7,8 @@ public class NftCreateDto {
   public string nftName { get; set; } = null!;
   public string nftDescription { get; set; } = null!;
   public double price { get; set; } 
+  public string nftImage { get; set; } = null!;
+  public string nftWalletAddress { get; set; } = null!;
   public string categoryId { get; set; } = null!;
 
 }
@@ -14,6 +16,7 @@ public class NftCreateDto {
 public class NftUpdateDto {
   public string? nftName { get; set; }
   public string? nftDescription { get; set; }
+  public string? nftImage { get; set; }
   public double? price { get; set; }
   public DateTime? updatedAt { get; set; } = DateTime.UtcNow;
 }

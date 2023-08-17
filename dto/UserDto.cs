@@ -13,6 +13,7 @@ public class UserDto : DefaultModel {
 
 public class SignInRegisterDto {
     public string userName { get; set; } = null!;
+    public string userProfileImage { get; set; } = null!;
     public string walletAddress { get; set; } = null!;
     public Socials socials { get; set; } = null!;
 }
@@ -34,5 +35,6 @@ public class LoginDto {
 public class UserUpdateDto {
     public string? userName { get; set; }
     public Socials? socials { get; set; }
+    public string? userProfileImage { get; set; }
     public DateTime? updatedAt { get; set; } = DateTime.UtcNow;
 }

@@ -30,7 +30,7 @@ public class NftLikeService : INftLikeService
         marketPlaceDBSettings.Value.NftCollectionName);
   }
 
-  public async Task<List<NftLike>> GetAsync() =>
+  public async Task<IList<NftLike>> GetAsync() =>
       await _nftLikeCollection.Find(_ => true).ToListAsync();
 
   public async Task<NftLike?> GetAsync(string id) =>
@@ -53,7 +53,7 @@ public class NftLikeService : INftLikeService
       await _nftLikeCollection.Find(x => x.nftId == nftId).FirstOrDefaultAsync();
   
 
-  public async Task<List<NftLike>> GetNftLikesByUserId(string userId) =>
+  public async Task<IList<NftLike>> GetNftLikesByUserId(string userId) =>
       await _nftLikeCollection.Find(x => x.userId == userId).ToListAsync();
   
   public async Task<NftLike?> GetNftLikeByUserIdAndNftId(string userId, string nftId) =>

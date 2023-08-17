@@ -27,7 +27,7 @@ public class UserService : IUserService
             marketPlaceDBSettings.Value.UserCollectionName);
     }
 
-    public async Task<List<User>> GetAsync() =>
+    public async Task<IList<User>> GetAsync() =>
         await _usersCollection.Find(_ => true).ToListAsync();
 
     public async Task<User?> GetAsync(string id) =>

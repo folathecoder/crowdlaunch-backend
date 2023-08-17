@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -12,26 +13,30 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/projects/[controller]")]
 public class ProjectController : ControllerBase
 {
-    private readonly ProjectService _projectService;
-    private readonly ProjectUpdateService _projectUpdateService;
-    private readonly ProjectDetailService _projectDetailService;
-    private readonly CategoryService _categoryService;
+    private readonly IProjectService _projectService;
+    private readonly IProjectUpdateService _projectUpdateService;
+    private readonly IProjectDetailService _projectDetailService;
+    private readonly IDefaultService<Category> _categoryService;
+    private readonly IMapper _mapper;
 
-    public ProjectController(ProjectService projectService, ProjectUpdateService projectUpdateService, 
-                            ProjectDetailService projectDetailService, CategoryService categoryService)
+    public ProjectController(IProjectService projectService, IProjectUpdateService projectUpdateService, 
+                            IProjectDetailService projectDetailService, IDefaultService<Category> categoryService, IMapper mapper)
     {
         _projectService = projectService;
         _projectUpdateService = projectUpdateService;
         _projectDetailService = projectDetailService;
         _categoryService = categoryService;
+        _mapper = mapper;
     }
     
     [HttpGet]
-    public async Task<List<Project>> Get() =>
-        await _projectService.GetAsync();
+    [ProducesResponseType(typeof(IList<Project>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _projectService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<ProjectDto>> Get(string id)
+    [ProducesResponseType(typeof(ProjectDto), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var project = await _projectService.GetAsync(id);
 
@@ -68,20 +73,8 @@ public class ProjectController : ControllerBase
             return BadRequest("Project with this wallet address already exists");
         }
 
-        var project = new Project 
-        {
-            userId = userId,
-            categoryId = newProject.categoryId,
-            projectName = newProject.projectName,
-            bannerImageUrl = newProject.bannerImageUrl,
-            targetAmount = newProject.targetAmount,
-            minInvestment = newProject.minInvestment,
-            noOfDaysLeft = newProject.noOfDaysLeft,
-            projectWalletAddress = newProject.projectWalletAddress,
-            customColour = newProject.customColour,
-            projectStatus = newProject.projectStatus,
-            amountRaised = newProject.amountRaised
-        };
+        var project = _mapper.Map<Project>(newProject);
+        project.userId = userId;
         
         await _projectService.CreateAsync(project);
 
@@ -100,21 +93,11 @@ public class ProjectController : ControllerBase
             return NotFound();
         }
 
-        project.projectName = updatedProject.projectName ?? project.projectName;
-        project.bannerImageUrl = updatedProject.bannerImageUrl ?? project.bannerImageUrl;
-        project.targetAmount = updatedProject.targetAmount;
-        project.minInvestment = updatedProject.minInvestment;
-        project.noOfDaysLeft = updatedProject.noOfDaysLeft;
-        project.projectWalletAddress = updatedProject.projectWalletAddress ?? project.projectWalletAddress;
-        project.customColour = updatedProject.customColour ?? project.customColour;
-        project.projectStatus = updatedProject.projectStatus;
-        project.amountRaised = updatedProject.amountRaised;
-        project.categoryId = updatedProject.categoryId ?? project.categoryId;
-        project.updatedAt = DateTime.UtcNow;
+        var projectUpdated = _mapper.Map(updatedProject, project);
 
 
 
-        await _projectService.UpdateAsync(id, project);
+        await _projectService.UpdateAsync(id, projectUpdated);
 
         return NoContent();
     }
@@ -136,15 +119,18 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet("get-by-userid")]
-    public async Task<List<Project>> GetProjectsByUserId([FromQuery] string userId) =>
-        await _projectService.GetProjectsByUserId(userId);
+    [ProducesResponseType(typeof(IList<Project>), 200)]
+    public async Task<IActionResult> GetProjectsByUserId([FromQuery] string userId) =>
+        Ok(await _projectService.GetProjectsByUserId(userId));
 
     [HttpGet("search")]
-    public async Task<List<Project>> SearchProjects([FromQuery] string projectName, [FromQuery] bool ascending) =>
-        await _projectService.SearchByProjectName(projectName, ascending);
+    [ProducesResponseType(typeof(IList<Project>), 200)]
+    public async Task<IActionResult> SearchProjects([FromQuery] string projectName, [FromQuery] bool ascending) =>
+        Ok(await _projectService.SearchByProjectName(projectName, ascending));
 
     [HttpGet("get-by-wallet-address")]
-    public async Task<ActionResult<Project?>> GetProjectByWalletAddress([FromQuery] string walletAddress) {
+    [ProducesResponseType(typeof(ProjectDto), 200)]
+    public async Task<IActionResult> GetProjectByWalletAddress([FromQuery] string walletAddress) {
         var project = await _projectService.GetProjectByWalletAddress(walletAddress);
 
         if (project is null)
@@ -152,22 +138,35 @@ public class ProjectController : ControllerBase
             return NotFound();
         }
 
-        return project;
+        var projectUpdates = await _projectUpdateService.GetProjectUpdatesByProjectId(project.projectId);
+        var projectDetail = await _projectDetailService.GetProjectDetailsByProjectId(project.projectId);
+        var category = await _categoryService.GetAsync(project.categoryId!);
+
+        var projectDto = new ProjectDto
+        {
+            project = project,
+            projectUpdates = projectUpdates,
+            projectDetails = projectDetail,
+            category = category
+        };
+
+        return Ok(projectDto);
     }
         
 
     [HttpGet("get-with-filters")]
-    public async Task<List<Project>> GetProjectWithFilters([FromQuery] string? search,
+    [ProducesResponseType(typeof(IList<Project>), 200)]
+    public async Task<IActionResult> GetProjectWithFilters([FromQuery] string? search,
     [FromQuery] bool? newest, [FromQuery] bool? trending, [FromQuery] Status? active,
     [FromQuery] bool? mostLiked, [FromQuery] List<string?> categoryIds, [FromQuery] double? minInvestmentMin,
-    [FromQuery] double? minInvestmentMax, [FromQuery] bool? minIvestmentAsc,
+    [FromQuery] double? minInvestmentMax, [FromQuery] bool? minInvestmentAsc,
     [FromQuery] double? amountRaisedMin, [FromQuery] double? amountRaisedMax, [FromQuery] bool? amountRaisedAsc, 
     [FromQuery] double? targetAmountMin, [FromQuery] double? targetAmountMax, [FromQuery] bool? targetAmountAsc,
     [FromQuery] int? noOfDaysLeftMin, [FromQuery] int? noOfDaysLeftMax, [FromQuery] bool? noOfDaysLeftAsc, 
     [FromQuery] bool? ascending = false) =>
-        await _projectService.GetProjectWithFilters(search,
-            newest, trending, active, mostLiked, categoryIds, minInvestmentMin, minInvestmentMax, minIvestmentAsc, 
+        Ok(await _projectService.GetProjectWithFilters(search,
+            newest, trending, active, mostLiked, categoryIds, minInvestmentMin, minInvestmentMax, minInvestmentAsc, 
             amountRaisedMin, amountRaisedMax, amountRaisedAsc, targetAmountMin, targetAmountMax,
             targetAmountAsc, noOfDaysLeftMin, noOfDaysLeftMax, noOfDaysLeftAsc, ascending
-        );
+        ));
 }

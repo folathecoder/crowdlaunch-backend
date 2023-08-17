@@ -6,7 +6,10 @@ using System.Text;
 using MARKETPLACEAPI.Models;
 using MARKETPLACEAPI.Services;
 using Microsoft.OpenApi.Models;
-
+using MARKETPLACEAPI.Interfaces;
+using System.Text.Json.Serialization;
+using MARKETPLACEAPI.Helpers;
+using Microsoft.Extensions.Options;
 
 public class Startup
 {
@@ -20,19 +23,26 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         // Add your services configuration here if needed.
-          services.Configure<MarketPlaceDBSettings>(
+        services.Configure<MarketPlaceDBSettings>(
             _configuration.GetSection("MarketPlaceDatabase"));
-          services.AddSingleton<UserService>();
-          services.AddSingleton<ProjectService>();
-          services.AddSingleton<NftService>();
-          services.AddSingleton<UserNftService>();
-          services.AddSingleton<ProjectLikeService>();
-          services.AddSingleton<NftLikeService>();
-          services.AddSingleton<PortfolioService>();
-          services.AddSingleton<ProjectDetailService>();
-          services.AddSingleton<ProjectUpdateService>();
-          services.AddSingleton<CategoryService>();
-          services.AddSingleton<AuthService>();
+
+        services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+        // var emailConfig = _configuration
+        //     .GetSection("EmailConfiguration")
+        //     .Get<EmailConfiguration>();
+        // services.AddSingleton(emailConfig);
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IProjectService, ProjectService>();
+        services.AddScoped<INftService, NftService>();
+        services.AddScoped<IUserNftService, UserNftService>();
+        services.AddScoped<IProjectLikeService, ProjectLikeService>();
+        services.AddScoped<INftLikeService, NftLikeService>();
+        services.AddScoped<IPortfolioService, PortfolioService>();
+        services.AddScoped<IProjectDetailService, ProjectDetailService>();
+        services.AddScoped<IProjectUpdateService, ProjectUpdateService>();
+        services.AddScoped<IDefaultService<Category>, CategoryService>();
+        services.AddScoped<IAuthService, AuthService>();
           services.AddControllers();
           // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
           services.AddEndpointsApiExplorer();
@@ -61,6 +71,7 @@ public class Startup
                   });
               }
           );
+          services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
           services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options => {
                   options.TokenValidationParameters = new TokenValidationParameters
@@ -95,6 +106,8 @@ public class Startup
         app.UseSwagger();
         app.UseSwaggerUI();
 
+        app.UseHsts();
+
 
     
 
@@ -108,25 +121,25 @@ public class Startup
             ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
         });
 
-        app.UseAuthentication();
 
-        app.UseAuthentication();
+        
 
-        app.UseCors("CorsPolicy");
+        
         app.UseTokenMiddleware();
+        
+
+        app.UseRouting();
+        app.UseCors("CorsPolicy");
+        app.UseAuthentication();
+        app.UseAuthorization();
         // Add the ExceptionLoggingMiddleware to the pipeline.
         string logFilePath = Path.Combine(env.ContentRootPath, "exceptions.log");
         app.UseMiddleware<ExceptionLoggingMiddleware>(logFilePath);
 
-
-        app.UseRouting();
-        app.UseAuthorization();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();
         });
-
-        
         
         // The following middleware will only execute if an exception is not thrown.
         // You can continue adding other middleware to the pipeline here.

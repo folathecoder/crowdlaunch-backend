@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -13,17 +14,22 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/project-updates/[controller]")]
 public class ProjectUpdateController : ControllerBase
 {
-    private readonly ProjectUpdateService _projectUpdateService;
+    private readonly IProjectUpdateService _projectUpdateService;
+    private readonly IMapper _mapper;
 
-    public ProjectUpdateController(ProjectUpdateService projectUpdateService) =>
+    public ProjectUpdateController(IProjectUpdateService projectUpdateService, IMapper mapper) {
         _projectUpdateService = projectUpdateService;
+        _mapper = mapper;
+    }
 
     [HttpGet]
-    public async Task<List<ProjectUpdate>> Get() =>
-        await _projectUpdateService.GetAsync();
+    [ProducesResponseType(typeof(IList<ProjectUpdate>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _projectUpdateService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<ProjectUpdate>> Get(string id)
+    [ProducesResponseType(typeof(ProjectUpdate), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var projectUpdate = await _projectUpdateService.GetAsync(id);
 
@@ -32,18 +38,13 @@ public class ProjectUpdateController : ControllerBase
             return NotFound();
         }
 
-        return projectUpdate;
+        return Ok(projectUpdate);
     }
 
     [HttpPost]
     public async Task<IActionResult> Post(ProjectUpdateCreateDto newProjectUpdate)
     {
-        var projectUpdate = new ProjectUpdate
-        {
-            projectId = newProjectUpdate.projectId,
-            updateTitle = newProjectUpdate.updateTitle,
-            updateMessage = newProjectUpdate.updateMessage
-        };
+        var projectUpdate = _mapper.Map<ProjectUpdate>(newProjectUpdate);
         await _projectUpdateService.CreateAsync(projectUpdate);
 
         return CreatedAtAction(nameof(Get), new { id = projectUpdate.projectUpdateId }, projectUpdate);
@@ -60,12 +61,10 @@ public class ProjectUpdateController : ControllerBase
             return NotFound();
         }
 
-        projectUpdate.projectId = updatedProjectUpdate.projectId;
-        projectUpdate.updateTitle = updatedProjectUpdate.updateTitle;
-        projectUpdate.updateMessage = updatedProjectUpdate.updateMessage;
-        projectUpdate.updatedAt = DateTime.UtcNow;
+        var projectUpdateUpdate = _mapper.Map(updatedProjectUpdate, projectUpdate);
+        projectUpdateUpdate.updatedAt = DateTime.UtcNow;
 
-        await _projectUpdateService.UpdateAsync(id, projectUpdate);
+        await _projectUpdateService.UpdateAsync(id, projectUpdateUpdate);
 
         return NoContent();
     }

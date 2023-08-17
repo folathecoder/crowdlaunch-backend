@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -13,31 +14,35 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/user/[controller]")]
 public class UserController : ControllerBase
 {
-    private readonly UserService _userService;
-    private readonly PortfolioService _portfolioService;
-    private readonly ProjectService _projectService;
-    private readonly UserNftService _userNftService;
-    private readonly ProjectLikeService _projectLikeService;
-    private readonly NftLikeService _nftLikeService;
+    private readonly IUserService _userService;
+    private readonly IPortfolioService _portfolioService;
+    private readonly IProjectService _projectService;
+    private readonly IUserNftService _userNftService;
+    private readonly IProjectLikeService _projectLikeService;
+    private readonly INftLikeService _nftLikeService;
+    private readonly IMapper _mapper;
 
-    public UserController(UserService userService, PortfolioService portfolioService, 
-    ProjectService projectService, UserNftService userNftService, 
-    ProjectLikeService projectLikeService, NftLikeService nftLikeService) {
+    public UserController(IUserService userService, IPortfolioService portfolioService, 
+    IProjectService projectService, IUserNftService userNftService, 
+    IProjectLikeService projectLikeService, INftLikeService nftLikeService, IMapper mapper) {
         _userService = userService;
         _portfolioService = portfolioService;
         _projectService = projectService;
         _userNftService = userNftService;
         _projectLikeService = projectLikeService;
         _nftLikeService = nftLikeService;
+        _mapper = mapper;
     }
        
 
     [HttpGet]
-    public async Task<List<User>> Get() =>
-        await _userService.GetAsync();
+    [ProducesResponseType(typeof(IList<User>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _userService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<UserDto>> Get(string id)
+    [ProducesResponseType(typeof(UserDto), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var user = await _userService.GetAsync(id);
 
@@ -64,14 +69,7 @@ public class UserController : ControllerBase
         return Ok(userDto);
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Post(User newUser)
-    {
-        await _userService.CreateAsync(newUser);
-
-        return CreatedAtAction(nameof(Get), new { id = newUser.userId }, newUser);
-    }
-
+    
     [HttpPatch]
     public async Task<IActionResult> Update(UserUpdateDto updatedUser)
     {
@@ -83,12 +81,10 @@ public class UserController : ControllerBase
             return NotFound();
         }
 
-        user.userName = updatedUser.userName;
-        user.socials = updatedUser.socials;
-        user.updatedAt = updatedUser.updatedAt;
+        var updatedUserModel = _mapper.Map(updatedUser, user);
 
 
-        await _userService.UpdateAsync(id, user);
+        await _userService.UpdateAsync(id, updatedUserModel);
 
         return NoContent();
     }
@@ -96,6 +92,11 @@ public class UserController : ControllerBase
     [HttpDelete("{id:length(24)}")]
     public async Task<IActionResult> Delete(string id)
     {
+        var userId = HttpContext.Request.Headers["userId"].ToString();
+        if (userId != id)
+        {
+            return Unauthorized();
+        }
         var user = await _userService.GetAsync(id);
 
         if (user is null)
@@ -109,7 +110,8 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("get-by-wallet-address")]
-    public async Task<ActionResult<UserDto>> GetByWalletAddress([FromHeader] string walletAddress)
+    [ProducesResponseType(typeof(UserDto), 200)]
+    public async Task<IActionResult> GetByWalletAddress([FromHeader] string walletAddress)
     {
         var user = await _userService.GetUserByWalletAddress(walletAddress);
 
@@ -137,7 +139,8 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> GetMe()
+    [ProducesResponseType(typeof(UserDto), 200)]
+    public async Task<IActionResult> GetMe()
     {   
         var userId = HttpContext.Request.Headers["userId"].ToString();
         var user = await _userService.GetAsync(userId);

@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
+using MARKETPLACEAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -12,39 +13,62 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/categories/[controller]")]
 public class CategoryController : ControllerBase
 {
-    private readonly CategoryService _categoryService;
+    private readonly IDefaultService<Category> _categoryService;
+    private readonly IMapper _mapper;
 
-    public CategoryController(CategoryService categoryService) =>
+    public CategoryController(IDefaultService<Category> categoryService, IMapper mapper) {
         _categoryService = categoryService;
-
+        _mapper = mapper;
+    }
+        
     [HttpGet]
-    public async Task<List<Category>> Get() =>
-        await _categoryService.GetAsync();
+    [ProducesResponseType(200, Type = typeof(IList<Category>))]
+    public async Task<IActionResult> Get() {
+        try
+        {
+            var categories = await _categoryService.GetAsync();
+            return Ok(categories);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+
+    }
+        
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<Category>> Get(string id, [FromHeader] string userId)
+    [ProducesResponseType(typeof(Category), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var category = await _categoryService.GetAsync(id);
 
         if (category is null)
         {
-            return NotFound();
+            return NotFound(
+                new { Message = $"Category with id: {id} does not exist." }
+            );
         }
 
-        return category;
+        return Ok(category);
     }
 
     [HttpPost]
     [Authorize]
+    [ProducesResponseType(typeof(Category), 201)]
 
     public async Task<IActionResult> Post(CategoryCreateDto newCategory)
     {
-        var category = new Category
+        var category = _mapper.Map<Category>(newCategory);
+
+        try
         {
-            categoryName = newCategory.categoryName,
-            categoryDescription = newCategory.categoryDescription,
-        };
-        await _categoryService.CreateAsync(category);
+            await _categoryService.CreateAsync(category);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
 
         return CreatedAtAction(nameof(Get), new { id = category.categoryId }, category);
     }
@@ -57,14 +81,14 @@ public class CategoryController : ControllerBase
 
         if (category is null)
         {
-            return NotFound();
+            return NotFound(
+                new { Message = $"Category with id: {id} does not exist." }
+            );
         }
 
-        category.categoryName = updatedCategory.categoryName;
-        category.categoryDescription = updatedCategory.categoryDescription;
-        category.updatedAt = DateTime.UtcNow;
+        var updatedCat = _mapper.Map(updatedCategory, category);
 
-        await _categoryService.UpdateAsync(id, category);
+        await _categoryService.UpdateAsync(id, updatedCat);
 
         return NoContent();
     }

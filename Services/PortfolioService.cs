@@ -27,7 +27,7 @@ public class PortfolioService : IPortfolioService
             marketPlaceDBSettings.Value.PortfolioCollectionName);
     }
 
-    public async Task<List<Portfolio>> GetAsync() =>
+    public async Task<IList<Portfolio>> GetAsync() =>
         await _portfolioCollection.Find(_ => true).ToListAsync();
 
     public async Task<Portfolio?> GetAsync(string id) =>
@@ -42,7 +42,7 @@ public class PortfolioService : IPortfolioService
     public async Task RemoveAsync(string id) =>
         await _portfolioCollection.DeleteOneAsync(x => x.portfolioId == id);
 
-    public async Task<List<Portfolio>> GetPortfolioByUserId(string userId) =>
+    public async Task<IList<Portfolio>> GetPortfolioByUserId(string userId) =>
         await _portfolioCollection.Find(x => x.userId == userId).ToListAsync();
     
 
@@ -50,7 +50,7 @@ public class PortfolioService : IPortfolioService
         await _portfolioCollection.Find(x => x.projectId == projectId).FirstOrDefaultAsync();
     
 
-    public async Task<List<Portfolio>> GetPortfoliosByProjectId(string projectId) =>
+    public async Task<IList<Portfolio>> GetPortfoliosByProjectId(string projectId) =>
         await _portfolioCollection.Find(x => x.projectId == projectId).ToListAsync();
 
     public async Task<Portfolio?> GetPortfolioByUserIdAndProjectId(string userId, string projectId) => 

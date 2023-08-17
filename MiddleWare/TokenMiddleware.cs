@@ -1,6 +1,5 @@
 using MARKETPLACEAPI.Interfaces;
-using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
+using MARKETPLACEAPI.Helpers;
 
 namespace MARKETPLACEAPI.MiddleWare;
 
@@ -8,13 +7,13 @@ namespace MARKETPLACEAPI.MiddleWare;
 public class TokenMiddleware 
 {
   private readonly RequestDelegate _next;
-  private readonly IAuthService _authService;
+  private readonly IConfiguration _config;
 
 
-  public TokenMiddleware(RequestDelegate next, AuthService authService)
+  public TokenMiddleware(RequestDelegate next, IConfiguration config)
   {
     _next = next;
-    _authService = authService;
+    _config = config;
   }
 
   public async Task InvokeAsync(HttpContext context)
@@ -24,7 +23,9 @@ public class TokenMiddleware
 
     if (token != null)
     {
-      var userId = _authService.DecodeToken(token);
+      TokenHelper _tokenHelper = new TokenHelper(_config);
+
+      var userId = _tokenHelper.DecodeToken(token);
      
 
       if (userId != null)

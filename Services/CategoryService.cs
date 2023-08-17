@@ -26,7 +26,7 @@ public class CategoryService : IDefaultService<Category>
             marketPlaceDBSettings.Value.CategoryCollectionName);
     }
 
-    public async Task<List<Category>> GetAsync() =>
+    public async Task<IList<Category>> GetAsync() =>
         await _categoriesCollection.Find(_ => true).ToListAsync();
 
     public async Task<Category?> GetAsync(string id) =>

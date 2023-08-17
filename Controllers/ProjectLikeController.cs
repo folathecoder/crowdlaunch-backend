@@ -1,138 +1,138 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
+[Authorize]
 [Route("api/project-likes/[controller]")]
 public class ProjectLikeController : ControllerBase
 {
-    private readonly ProjectLikeService _projectLikeService;
-    private readonly ProjectService _projectService;
+  private readonly IProjectLikeService _projectLikeService;
+  private readonly IProjectService _projectService;
+  private readonly IMapper _mapper;
 
-    public ProjectLikeController(ProjectLikeService projectLikeService, ProjectService projectService)
-    {
-        _projectLikeService = projectLikeService;
-        _projectService = projectService;
+  public ProjectLikeController(IProjectLikeService projectLikeService, IProjectService projectService, IMapper mapper) {
+    _projectLikeService = projectLikeService;
+    _projectService = projectService;
+    _mapper = mapper;
     }
-
+     
 
     [HttpGet]
-    public async Task<List<ProjectLike>> Get() =>
-        await _projectLikeService.GetAsync();
+    [ProducesResponseType(typeof(IList<ProjectLike>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _projectLikeService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<ProjectLike>> Get(string id)
+    [ProducesResponseType(typeof(ProjectLike), 200)]
+    public async Task<IActionResult> Get(string id)
     {
-        var projectLike = await _projectLikeService.GetAsync(id);
+    var projectLike = await _projectLikeService.GetAsync(id);
 
-        if (projectLike is null)
-        {
-            return NotFound();
-        }
+    if (projectLike is null)
+    {
+        return NotFound();
+    }
 
-        return projectLike;
+    return Ok(projectLike);
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Post(ProjectLikeCreateDto newProjectLike)
     {
-        var userId = HttpContext.Request.Headers["userId"].ToString();
-        var existingProjectLike = await _projectLikeService.GetProjectLikeByUserIdAndProjectId(
-            userId, newProjectLike.projectId);
+    var userId = HttpContext.Request.Headers["userId"].ToString();
+    var existingProjectLike = await _projectLikeService.GetProjectLikeByUserIdAndProjectId(
+        userId, newProjectLike.projectId);
 
-        if (existingProjectLike is not null)
-        {
-            return Conflict("Project Like already exists for this user and project.");
-        }
+    if (existingProjectLike is not null) {
+        return Conflict("Project Like already exists for this user and project.");
+    }
 
-        var projectLike = new ProjectLike
-        {
-            projectId = newProjectLike.projectId,
-            userId = userId
-        };
-        var project = await _projectService.GetAsync(projectLike.projectId);
+    var projectLike = _mapper.Map<ProjectLike>(newProjectLike);
+    projectLike.userId = userId;
+    var project = await _projectService.GetAsync(projectLike.projectId);
 
-        if (project is null)
-        {
-            return NotFound();
-        }
-        await _projectLikeService.CreateAsync(projectLike);
+    if (project is null)
+    {
+        return NotFound();
+    }
+    await _projectLikeService.CreateAsync(projectLike);
+    
 
+    project.noOfLikes += 1;
+    await _projectService.UpdateAsync(projectLike.projectId, project);
 
-        project.noOfLikes += 1;
-        await _projectService.UpdateAsync(projectLike.projectId, project);
-
-        return CreatedAtAction(nameof(Get), new { id = projectLike.projectLikeId }, projectLike);
+    return CreatedAtAction(nameof(Get), new { id = projectLike.projectLikeId }, projectLike);
     }
 
     [HttpPatch("{id:length(24)}")]
-    [Authorize]
     public async Task<IActionResult> Update(string id, ProjectLike updatedProjectLike)
     {
-        var projectLike = await _projectLikeService.GetAsync(id);
+    var projectLike = await _projectLikeService.GetAsync(id);
 
-        if (projectLike is null)
-        {
-            return NotFound();
-        }
+    if (projectLike is null)
+    {
+        return NotFound();
+    }
 
-        updatedProjectLike.projectLikeId = projectLike.projectLikeId;
+    updatedProjectLike.projectLikeId = projectLike.projectLikeId;
 
-        await _projectLikeService.UpdateAsync(id, updatedProjectLike);
+    await _projectLikeService.UpdateAsync(id, updatedProjectLike);
 
-        return NoContent();
+    return NoContent();
     }
 
     [HttpDelete("{id:length(24)}")]
-    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
-        var projectLike = await _projectLikeService.GetAsync(id);
-        if (projectLike is null)
-        {
-            return NotFound();
-        }
-        var project = await _projectService.GetAsync(projectLike.projectId!);
+    var projectLike = await _projectLikeService.GetAsync(id);
+    if (projectLike is null)
+    {
+        return NotFound();
+    }
+    var project = await _projectService.GetAsync(projectLike.projectId!);
 
-        if (project is null)
-        {
-            return NotFound("Project not found.");
-        }
+    if (project is null)
+    {
+        return NotFound("Project not found.");
+    }
 
-        project.noOfLikes -= 1;
-        await _projectService.UpdateAsync(projectLike.projectId!, project);
-
-
-        await _projectLikeService.RemoveAsync(id);
+    project.noOfLikes -= 1;
+    await _projectService.UpdateAsync(projectLike.projectId!, project);
 
 
-        return NoContent();
+    await _projectLikeService.RemoveAsync(id);
+
+
+    return NoContent();
     }
 
     [HttpGet("get-by-projectid")]
-    public async Task<List<ProjectLike>> GetByProjectId([FromQuery] string projectId) =>
-        await _projectLikeService.GetProjectLikeByProjectId(projectId);
+    [ProducesResponseType(typeof(IList<ProjectLike>), 200)]
+    public async Task<IActionResult> GetByProjectId([FromQuery] string projectId) =>
+        Ok(await _projectLikeService.GetProjectLikeByProjectId(projectId));
 
     [HttpGet("get-by-userid")]
-    public async Task<List<ProjectLike>> GetByUserId([FromQuery] string userId) =>
-        await _projectLikeService.GetProjectLikesByUserId(userId);
+    [ProducesResponseType(typeof(IList<ProjectLike>), 200)]
+    public async Task<IActionResult> GetByUserId([FromQuery] string userId) =>
+        Ok(await _projectLikeService.GetProjectLikesByUserId(userId));
 
     [HttpGet("get-by-userid-and-projectid")]
-    public async Task<ActionResult<ProjectLike?>> GetByUserIdAndProjectId([FromQuery] string userId, [FromQuery] string projectId)
-    {
+    [ProducesResponseType(typeof(ProjectLike), 200)]
+    public async Task<IActionResult> GetByUserIdAndProjectId([FromQuery] string userId, [FromQuery] string projectId) {
         var projectLike = await _projectLikeService.GetProjectLikeByUserIdAndProjectId(userId, projectId);
         if (projectLike is null)
         {
             return NotFound();
         }
-        return projectLike;
+        return Ok(projectLike);
     }
-
+        
 }

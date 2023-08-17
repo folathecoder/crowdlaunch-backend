@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -13,21 +14,25 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/portfolios/[controller]")]
 public class PortfolioController : ControllerBase
 {
-    private readonly PortfolioService _portfolioService;
-    private readonly ProjectService _projectService;
+    private readonly IPortfolioService _portfolioService;
+    private readonly IProjectService _projectService;
+    private readonly IMapper _mapper;
 
-    public PortfolioController(PortfolioService portfolioService, ProjectService projectService) 
+    public PortfolioController(IPortfolioService portfolioService, IProjectService projectService, IMapper mapper) 
     {
         _portfolioService = portfolioService;
         _projectService = projectService;
+        _mapper = mapper;
     }
 
     [HttpGet]
-    public async Task<List<Portfolio>> Get() =>
-        await _portfolioService.GetAsync();
+    [ProducesResponseType(typeof(IList<Portfolio>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _portfolioService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<Portfolio>> Get(string id)
+    [ProducesResponseType(typeof(Portfolio), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var portfolio = await _portfolioService.GetAsync(id);
 
@@ -36,7 +41,7 @@ public class PortfolioController : ControllerBase
             return NotFound();
         }
 
-        return portfolio;
+        return Ok(portfolio);
     }
 
     [HttpPost]
@@ -63,14 +68,8 @@ public class PortfolioController : ControllerBase
             return Ok(existingPortfolio);
         }
 
-        var portfolio = new Portfolio
-        {
-            projectId = newPortfolio.projectId,
-            userId = userId,
-            status = newPortfolio.status,
-            amountInvested = newPortfolio.amountInvested,
-            investmentDate = newPortfolio.investmentDate
-        };
+        var portfolio = _mapper.Map<Portfolio>(newPortfolio);
+        portfolio.userId = userId;
         await _portfolioService.CreateAsync(portfolio);
 
         project!.amountRaised += newPortfolio.amountInvested;
@@ -115,10 +114,12 @@ public class PortfolioController : ControllerBase
     }
 
     [HttpGet("get-by-userid")]
-    public async Task<List<Portfolio>> GetPortfolioByUserId([FromQuery] string userId) =>
-        await _portfolioService.GetPortfolioByUserId(userId);
+    [ProducesResponseType(typeof(IList<Portfolio>), 200)]
+    public async Task<IActionResult> GetPortfolioByUserId([FromQuery] string userId) =>
+        Ok(await _portfolioService.GetPortfolioByUserId(userId));
 
     [HttpGet("get-by-projectid")]
-    public async Task<ActionResult<Portfolio?>> GetPortfolioByProjectId([FromQuery] string projectId) =>
-        await _portfolioService.GetPortfolioByProjectId(projectId);
+    [ProducesResponseType(typeof(Portfolio), 200)]
+    public async Task<IActionResult> GetPortfolioByProjectId([FromQuery] string projectId) =>
+       Ok( await _portfolioService.GetPortfolioByProjectId(projectId));
 }

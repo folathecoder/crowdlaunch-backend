@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
+using MARKETPLACEAPI.Interfaces;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -13,17 +14,23 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/project-details/[controller]")]
 public class ProjectDetailController : ControllerBase
 {
-    private readonly ProjectDetailService _projectDetailService;
+    private readonly IProjectDetailService _projectDetailService;
+    private readonly IMapper _mapper;
 
-    public ProjectDetailController(ProjectDetailService projectDetailService) =>
+    public ProjectDetailController(IProjectDetailService projectDetailService, IMapper mapper) {
         _projectDetailService = projectDetailService;
+        _mapper = mapper;
+    }
+        
 
     [HttpGet]
-    public async Task<List<ProjectDetail>> Get() =>
-        await _projectDetailService.GetAsync();
+    [ProducesResponseType(typeof(IList<ProjectDetail>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _projectDetailService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<ProjectDetail>> Get(string id)
+    [ProducesResponseType(typeof(ProjectDetail), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var projectDetail = await _projectDetailService.GetAsync(id);
 
@@ -32,7 +39,7 @@ public class ProjectDetailController : ControllerBase
             return NotFound();
         }
 
-        return projectDetail;
+        return Ok(projectDetail);
     }
 
     [HttpPost]
@@ -40,22 +47,12 @@ public class ProjectDetailController : ControllerBase
     {
         var existingProjectDetail = await _projectDetailService.GetProjectDetailsByProjectId(newProjectDetail.projectId!);
 
-        if (existingProjectDetail is not null)
-        {
-            return Conflict("Project Details already exists for this project.");
-        }
+        // if (existingProjectDetail is not null)
+        // {
+        //     return Conflict("Project Details already exists for this project.");
+        // }
 
-    var projectDetail = new ProjectDetail
-    {
-      projectId = newProjectDetail.projectId,
-      overview = newProjectDetail.overview,
-      competitors = newProjectDetail.competitors,
-      strategy = newProjectDetail.strategy,
-      financials = newProjectDetail.financials,
-      dividend = newProjectDetail.dividend,
-      risks = newProjectDetail.risks,
-      performance = newProjectDetail.performance
-    };
+    var projectDetail = _mapper.Map<ProjectDetail>(newProjectDetail);
 
     await _projectDetailService.CreateAsync(projectDetail);
 
@@ -72,17 +69,9 @@ public class ProjectDetailController : ControllerBase
             return NotFound();
         }
 
-        projectDetail.projectId = updatedProjectDetail.projectId ?? projectDetail.projectId;
-        projectDetail.overview = updatedProjectDetail.overview ?? projectDetail.overview;
-        projectDetail.competitors = updatedProjectDetail.competitors ?? projectDetail.competitors;
-        projectDetail.strategy = updatedProjectDetail.strategy ?? projectDetail.strategy;
-        projectDetail.financials = updatedProjectDetail.financials ?? projectDetail.financials;
-        projectDetail.dividend = updatedProjectDetail.dividend ?? projectDetail.dividend;
-        projectDetail.risks = updatedProjectDetail.risks ?? projectDetail.risks;
-        projectDetail.performance = updatedProjectDetail.performance ?? projectDetail.performance;
-        projectDetail.updatedAt = DateTime.UtcNow;
+        var projectDetailUpdate = _mapper.Map(updatedProjectDetail, projectDetail);
 
-        await _projectDetailService.UpdateAsync(id, projectDetail);
+        await _projectDetailService.UpdateAsync(id, projectDetailUpdate);
 
         return NoContent();
     }

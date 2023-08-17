@@ -27,7 +27,7 @@ public class ProjectUpdateService : IProjectUpdateService
             marketPlaceDBSettings.Value.ProjectUpdateCollectionName);
     }
 
-    public async Task<List<ProjectUpdate>> GetAsync() =>
+    public async Task<IList<ProjectUpdate>> GetAsync() =>
         await _projectUpdateCollection.Find(_ => true).ToListAsync();
 
     public async Task<ProjectUpdate?> GetAsync(string id) =>
@@ -42,6 +42,6 @@ public class ProjectUpdateService : IProjectUpdateService
     public async Task RemoveAsync(string id) =>
         await _projectUpdateCollection.DeleteOneAsync(x => x.projectUpdateId == id);
 
-    public async Task<List<ProjectUpdate>> GetProjectUpdatesByProjectId(string projectId) =>
+    public async Task<IList<ProjectUpdate>> GetProjectUpdatesByProjectId(string projectId) =>
         await _projectUpdateCollection.Find(x => x.projectId == projectId).ToListAsync();
 }

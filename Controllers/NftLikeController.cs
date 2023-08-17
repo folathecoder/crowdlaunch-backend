@@ -1,8 +1,9 @@
 using MARKETPLACEAPI.dto;
 using MARKETPLACEAPI.Models;
-using MARKETPLACEAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MARKETPLACEAPI.Interfaces;
+using AutoMapper;
 
 namespace MARKETPLACEAPI.Controllers;
 
@@ -13,20 +14,24 @@ namespace MARKETPLACEAPI.Controllers;
 [Route("api/nftlikes/[controller]")]
 public class NftLikeController : ControllerBase
 {
-    private readonly NftLikeService _nftLikeService;
-    private readonly NftService _nftService;
+    private readonly INftLikeService _nftLikeService;
+    private readonly INftService _nftService;
+    private readonly IMapper _mapper;
 
-    public NftLikeController(NftLikeService nftLikeService, NftService nftService)  {
+    public NftLikeController(INftLikeService nftLikeService, INftService nftService, IMapper mapper)  {
     _nftLikeService = nftLikeService;
     _nftService = nftService;
+    _mapper = mapper;
   }
 
     [HttpGet]
-    public async Task<List<NftLike>> Get() =>
-        await _nftLikeService.GetAsync();
+    [ProducesResponseType(typeof(IList<NftLike>), 200)]
+    public async Task<IActionResult> Get() =>
+        Ok(await _nftLikeService.GetAsync());
 
     [HttpGet("{id:length(24)}")]
-    public async Task<ActionResult<NftLike>> Get(string id)
+    [ProducesResponseType(typeof(NftLike), 200)]
+    public async Task<IActionResult> Get(string id)
     {
         var nftLike = await _nftLikeService.GetAsync(id);
 
@@ -35,7 +40,7 @@ public class NftLikeController : ControllerBase
             return NotFound();
         }
 
-        return nftLike;
+        return Ok(nftLike);
     }
 
     [HttpPost]
@@ -59,11 +64,8 @@ public class NftLikeController : ControllerBase
             return BadRequest("You already liked this NFT");
         }
 
-        var newLike = new NftLike
-        {
-            nftId = newNftLike.nftId,
-            userId = userId,
-        };
+        var newLike = _mapper.Map<NftLike>(newNftLike);
+        newLike.userId = userId;
         await _nftLikeService.CreateAsync(newLike);
 
         nft.noOfLikes += 1;
@@ -83,9 +85,9 @@ public class NftLikeController : ControllerBase
             return NotFound();
         }
 
-        updatedNftLike.nftLikeId = nftLike.nftLikeId;
+        var nftLikeUpdate = _mapper.Map(updatedNftLike, nftLike);
 
-        await _nftLikeService.UpdateAsync(id, updatedNftLike);
+        await _nftLikeService.UpdateAsync(id, nftLikeUpdate);
 
         return NoContent();
     }
@@ -118,7 +120,8 @@ public class NftLikeController : ControllerBase
     }
 
     [HttpGet("get-by-nft-id")]
-    public async Task<ActionResult<NftLike>> GetNftLikeByNftId([FromQuery] string nftId)
+    [ProducesResponseType(typeof(NftLike), 200)]
+    public async Task<IActionResult> GetNftLikeByNftId([FromQuery] string nftId)
     {
         var nftLike = await _nftLikeService.GetNftLikeByNftId(nftId);
 
@@ -127,16 +130,18 @@ public class NftLikeController : ControllerBase
             return NotFound();
         }
 
-        return nftLike;
+        return Ok(nftLike);
     }
 
     [HttpGet("get-by-user-id")]
-    public async Task<List<NftLike>> GetNftLikesByUserId([FromQuery] string userId) =>
-        await _nftLikeService.GetNftLikesByUserId(userId);
+    [ProducesResponseType(typeof(IList<NftLike>), 200)]
+    public async Task<IActionResult> GetNftLikesByUserId([FromQuery] string userId) =>
+        Ok(await _nftLikeService.GetNftLikesByUserId(userId));
 
     
     [HttpGet("get-by-user-id-and-nft-id")]
-    public async Task<ActionResult<NftLike>> GetNftLikeByUserIdAndNftId([FromQuery] string userId, [FromQuery] string nftId)
+    [ProducesResponseType(typeof(NftLike), 200)]
+    public async Task<IActionResult> GetNftLikeByUserIdAndNftId([FromQuery] string userId, [FromQuery] string nftId)
     {
         var nftLike = await _nftLikeService.GetNftLikeByUserIdAndNftId(userId, nftId);
 
@@ -145,6 +150,6 @@ public class NftLikeController : ControllerBase
             return NotFound();
         }
 
-        return nftLike;
+        return Ok(nftLike);
     }
 }

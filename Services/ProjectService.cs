@@ -35,7 +35,7 @@ public class ProjectService : IProjectService
             marketPlaceDBSettings.Value.ProjectLikeCollectionName);
     }
 
-    public async Task<List<Project>> GetAsync() =>
+    public async Task<IList<Project>> GetAsync() =>
         await _projectCollection.Find(_ => true).ToListAsync();
 
     public async Task<Project?> GetAsync(string id) =>
@@ -54,11 +54,11 @@ public class ProjectService : IProjectService
     await _projectCollection.Find(x => x.projectWalletAddress == walletAddress).FirstOrDefaultAsync();
   
 
-  public async Task<List<Project>> GetProjectsByUserId(string userId) =>
+  public async Task<IList<Project>> GetProjectsByUserId(string userId) =>
     await _projectCollection.Find(x => x.userId == userId).ToListAsync();
   
 
-  public async Task<List<Project>> SearchByProjectName(string projectName, bool? ascending = true) {
+  public async Task<IList<Project>> SearchByProjectName(string projectName, bool? ascending = true) {
     var filter = Builders<Project>.Filter.Regex(x => x.projectName, new BsonRegularExpression(projectName, "i"));
     var sort = Builders<Project>.Sort.Ascending(x => x.createdAt);
     if (ascending == false) {
@@ -68,7 +68,7 @@ public class ProjectService : IProjectService
   }
   
 
-  public async Task<List<Project>> GetProjectWithFilters(string? search, bool? newest, bool? trending, Status? active, 
+  public async Task<IList<Project>> GetProjectWithFilters(string? search, bool? newest, bool? trending, Status? active, 
   bool? mostLiked, List<string?> categoryIds, double? minInvestmentMin, double? minInvestmentMax, bool? minInvestmentAsc,
   double? amountRaisedMin, double? amountRaisedMax, bool? amountRaisedAsc, double? targetAmountMin,
   double? targetAmountMax, bool? targetAmountAsc, 

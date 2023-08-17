@@ -28,7 +28,7 @@ public class NftService : INftService
             marketPlaceDBSettings.Value.NftCollectionName);
     }
 
-    public async Task<List<Nft>> GetAsync() =>
+    public async Task<IList<Nft>> GetAsync() =>
         await _nftCollection.Find(_ => true).ToListAsync();
 
     public async Task<Nft?> GetAsync(string id) =>
@@ -43,15 +43,15 @@ public class NftService : INftService
     public async Task RemoveAsync(string id) =>
         await _nftCollection.DeleteOneAsync(x => x.nftId == id);
 
-    public async Task<List<Nft>> GetNftsByCreatorId(string creatorId) =>
+    public async Task<IList<Nft>> GetNftsByCreatorId(string creatorId) =>
         await _nftCollection.Find(x => x.creatorId == creatorId).ToListAsync();
-    public async Task<List<Nft>> GetNftsByOwnerId(string ownerId) =>
+    public async Task<IList<Nft>> GetNftsByOwnerId(string ownerId) =>
         await _nftCollection.Find(x => x.ownerId == ownerId).ToListAsync();
     public async Task<Nft?> GetNftByUserIdAndNftId(string userId, string nftId) =>
         await _nftCollection.Find(x => x.ownerId == userId && x.nftId == nftId).FirstOrDefaultAsync();
     
     // sort price ascending if ascending is true, else descending
-    public async Task<List<Nft>> GetNftWithPriceFilter(double? priceMax, double? priceMin, bool? ascending = true) {
+    public async Task<IList<Nft>> GetNftWithPriceFilter(double? priceMax, double? priceMin, bool? ascending = true) {
         var filter = Builders<Nft>.Filter.Empty;
         if (priceMax != null) {
             filter &= Builders<Nft>.Filter.Lte(x => x.price, priceMax);
@@ -66,7 +66,7 @@ public class NftService : INftService
         return await _nftCollection.Find(filter).Sort(sort).ToListAsync();
     }
 
-    public async Task<List<Nft>> SearchByNftName(string nftName, bool? ascending = true) {
+    public async Task<IList<Nft>> SearchByNftName(string nftName, bool? ascending = true) {
         var filter = Builders<Nft>.Filter.Regex(x => x.nftName, new BsonRegularExpression(nftName, "i"));
         var sort = Builders<Nft>.Sort.Ascending(x => x.price);
         if (ascending == false) {

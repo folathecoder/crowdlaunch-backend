@@ -12,6 +12,8 @@ public class Nft : DefaultModel
   public string? nftId { get; set; }
   public string? creatorId { get; set; }
   public string? nftName { get; set; }
+  public string? nftImage { get; set; }
+  public string? nftWalletAddress { get; set; } 
   public string? nftDescription { get; set; }
   public double? price { get; set; }
   public int? noOfLikes { get; set; } = 0;

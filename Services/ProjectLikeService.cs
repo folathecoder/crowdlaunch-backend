@@ -27,7 +27,7 @@ public class ProjectLikeService : IProjectLikeService
             marketPlaceDBSettings.Value.ProjectLikeCollectionName);
     }
 
-    public async Task<List<ProjectLike>> GetAsync() =>
+    public async Task<IList<ProjectLike>> GetAsync() =>
         await _projectLikeCollection.Find(_ => true).ToListAsync();
 
     public async Task<ProjectLike?> GetAsync(string id) =>
@@ -42,10 +42,10 @@ public class ProjectLikeService : IProjectLikeService
     public async Task RemoveAsync(string id) =>
         await _projectLikeCollection.DeleteOneAsync(x => x.projectLikeId == id);
 
-    public async Task<List<ProjectLike>> GetProjectLikeByProjectId(string projectId) =>
+    public async Task<IList<ProjectLike>> GetProjectLikeByProjectId(string projectId) =>
         await _projectLikeCollection.Find(x => x.projectId == projectId).ToListAsync();
     
-    public async Task<List<ProjectLike>> GetProjectLikesByUserId(string userId) => 
+    public async Task<IList<ProjectLike>> GetProjectLikesByUserId(string userId) => 
         await _projectLikeCollection.Find(x => x.userId == userId).ToListAsync();
     
     public async Task<ProjectLike?> GetProjectLikeByUserIdAndProjectId(string userId, string projectId) =>
