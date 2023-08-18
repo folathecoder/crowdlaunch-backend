@@ -10,7 +10,6 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/user/[controller]")]
 public class UserController : ControllerBase
 {
@@ -22,9 +21,10 @@ public class UserController : ControllerBase
     private readonly INftLikeService _nftLikeService;
     private readonly IMapper _mapper;
 
-    public UserController(IUserService userService, IPortfolioService portfolioService, 
-    IProjectService projectService, IUserNftService userNftService, 
-    IProjectLikeService projectLikeService, INftLikeService nftLikeService, IMapper mapper) {
+    public UserController(IUserService userService, IPortfolioService portfolioService,
+    IProjectService projectService, IUserNftService userNftService,
+    IProjectLikeService projectLikeService, INftLikeService nftLikeService, IMapper mapper)
+    {
         _userService = userService;
         _portfolioService = portfolioService;
         _projectService = projectService;
@@ -33,7 +33,7 @@ public class UserController : ControllerBase
         _nftLikeService = nftLikeService;
         _mapper = mapper;
     }
-       
+
 
     [HttpGet]
     [ProducesResponseType(typeof(IList<User>), 200)]
@@ -57,7 +57,8 @@ public class UserController : ControllerBase
         var ownedNfts = await _userNftService.GetUserNftByUserId(user.userId!);
         var listedProjects = await _projectService.GetProjectsByUserId(user.userId!);
 
-        var userDto = new UserDto {
+        var userDto = new UserDto
+        {
             user = user,
             portfolios = portfolios,
             nftWatchlist = nftWatchlist,
@@ -69,8 +70,9 @@ public class UserController : ControllerBase
         return Ok(userDto);
     }
 
-    
+
     [HttpPatch]
+    [Authorize]
     public async Task<IActionResult> Update(UserUpdateDto updatedUser)
     {
         var id = HttpContext.Request.Headers["userId"].ToString();
@@ -90,6 +92,7 @@ public class UserController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
         var userId = HttpContext.Request.Headers["userId"].ToString();
@@ -126,7 +129,8 @@ public class UserController : ControllerBase
         var ownedNfts = await _userNftService.GetUserNftByUserId(user.userId!);
         var listedProjects = await _projectService.GetProjectsByUserId(user.userId!);
 
-        var userDto = new UserDto {
+        var userDto = new UserDto
+        {
             user = user,
             portfolios = portfolios,
             nftWatchlist = nftWatchlist,
@@ -139,9 +143,10 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("me")]
+    [Authorize]
     [ProducesResponseType(typeof(UserDto), 200)]
     public async Task<IActionResult> GetMe()
-    {   
+    {
         var userId = HttpContext.Request.Headers["userId"].ToString();
         var user = await _userService.GetAsync(userId);
 
@@ -156,7 +161,8 @@ public class UserController : ControllerBase
         var ownedNfts = await _userNftService.GetUserNftByUserId(user.userId!);
         var listedProjects = await _projectService.GetProjectsByUserId(user.userId!);
 
-        var userDto = new UserDto {
+        var userDto = new UserDto
+        {
             user = user,
             portfolios = portfolios,
             nftWatchlist = nftWatchlist,

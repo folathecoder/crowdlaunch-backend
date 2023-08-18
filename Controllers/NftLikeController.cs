@@ -10,7 +10,6 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/nftlikes/[controller]")]
 public class NftLikeController : ControllerBase
 {
@@ -18,11 +17,12 @@ public class NftLikeController : ControllerBase
     private readonly INftService _nftService;
     private readonly IMapper _mapper;
 
-    public NftLikeController(INftLikeService nftLikeService, INftService nftService, IMapper mapper)  {
-    _nftLikeService = nftLikeService;
-    _nftService = nftService;
-    _mapper = mapper;
-  }
+    public NftLikeController(INftLikeService nftLikeService, INftService nftService, IMapper mapper)
+    {
+        _nftLikeService = nftLikeService;
+        _nftService = nftService;
+        _mapper = mapper;
+    }
 
     [HttpGet]
     [ProducesResponseType(typeof(IList<NftLike>), 200)]
@@ -44,6 +44,7 @@ public class NftLikeController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -61,7 +62,7 @@ public class NftLikeController : ControllerBase
 
         if (nftLike != null)
         {
-            return BadRequest("You already liked this NFT");
+            return Ok(nftLike);
         }
 
         var newLike = _mapper.Map<NftLike>(newNftLike);
@@ -76,6 +77,7 @@ public class NftLikeController : ControllerBase
     }
 
     [HttpPatch("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Update(string id, NftLike updatedNftLike)
     {
         var nftLike = await _nftLikeService.GetAsync(id);
@@ -93,19 +95,20 @@ public class NftLikeController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Delete(string id)
-    {   
+    {
         var userId = HttpContext.Request.Headers["userId"].ToString();
         var nftLike = await _nftLikeService.GetAsync(id);
 
         if (nftLike is null)
         {
-            return NotFound();
+            return NoContent();
         }
 
         if (nftLike.userId != userId)
         {
-            return BadRequest("You can only delete your own likes");
+            return NoContent();
         }
 
         var nft = await _nftService.GetAsync(nftLike.nftId!);
@@ -138,7 +141,7 @@ public class NftLikeController : ControllerBase
     public async Task<IActionResult> GetNftLikesByUserId([FromQuery] string userId) =>
         Ok(await _nftLikeService.GetNftLikesByUserId(userId));
 
-    
+
     [HttpGet("get-by-user-id-and-nft-id")]
     [ProducesResponseType(typeof(NftLike), 200)]
     public async Task<IActionResult> GetNftLikeByUserIdAndNftId([FromQuery] string userId, [FromQuery] string nftId)

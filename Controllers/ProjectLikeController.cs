@@ -10,20 +10,20 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/project-likes/[controller]")]
 public class ProjectLikeController : ControllerBase
 {
-  private readonly IProjectLikeService _projectLikeService;
-  private readonly IProjectService _projectService;
-  private readonly IMapper _mapper;
+    private readonly IProjectLikeService _projectLikeService;
+    private readonly IProjectService _projectService;
+    private readonly IMapper _mapper;
 
-  public ProjectLikeController(IProjectLikeService projectLikeService, IProjectService projectService, IMapper mapper) {
-    _projectLikeService = projectLikeService;
-    _projectService = projectService;
-    _mapper = mapper;
+    public ProjectLikeController(IProjectLikeService projectLikeService, IProjectService projectService, IMapper mapper)
+    {
+        _projectLikeService = projectLikeService;
+        _projectService = projectService;
+        _mapper = mapper;
     }
-     
+
 
     [HttpGet]
     [ProducesResponseType(typeof(IList<ProjectLike>), 200)]
@@ -34,84 +34,94 @@ public class ProjectLikeController : ControllerBase
     [ProducesResponseType(typeof(ProjectLike), 200)]
     public async Task<IActionResult> Get(string id)
     {
-    var projectLike = await _projectLikeService.GetAsync(id);
+        var projectLike = await _projectLikeService.GetAsync(id);
 
-    if (projectLike is null)
-    {
-        return NotFound();
-    }
+        if (projectLike is null)
+        {
+            return NotFound();
+        }
 
-    return Ok(projectLike);
+        return Ok(projectLike);
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Post(ProjectLikeCreateDto newProjectLike)
     {
-    var userId = HttpContext.Request.Headers["userId"].ToString();
-    var existingProjectLike = await _projectLikeService.GetProjectLikeByUserIdAndProjectId(
-        userId, newProjectLike.projectId);
+        var userId = HttpContext.Request.Headers["userId"].ToString();
+        var existingProjectLike = await _projectLikeService.GetProjectLikeByUserIdAndProjectId(
+            userId, newProjectLike.projectId);
 
-    if (existingProjectLike is not null) {
-        return Conflict("Project Like already exists for this user and project.");
-    }
+        if (existingProjectLike is not null)
+        {
+            return Ok(existingProjectLike);
+        }
 
-    var projectLike = _mapper.Map<ProjectLike>(newProjectLike);
-    projectLike.userId = userId;
-    var project = await _projectService.GetAsync(projectLike.projectId);
+        var projectLike = _mapper.Map<ProjectLike>(newProjectLike);
+        projectLike.userId = userId;
+        var project = await _projectService.GetAsync(projectLike.projectId);
 
-    if (project is null)
-    {
-        return NotFound();
-    }
-    await _projectLikeService.CreateAsync(projectLike);
-    
+        if (project is null)
+        {
+            return NotFound();
+        }
+        await _projectLikeService.CreateAsync(projectLike);
 
-    project.noOfLikes += 1;
-    await _projectService.UpdateAsync(projectLike.projectId, project);
 
-    return CreatedAtAction(nameof(Get), new { id = projectLike.projectLikeId }, projectLike);
+        project.noOfLikes += 1;
+        await _projectService.UpdateAsync(projectLike.projectId, project);
+
+        return CreatedAtAction(nameof(Get), new { id = projectLike.projectLikeId }, projectLike);
     }
 
     [HttpPatch("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Update(string id, ProjectLike updatedProjectLike)
     {
-    var projectLike = await _projectLikeService.GetAsync(id);
+        var projectLike = await _projectLikeService.GetAsync(id);
 
-    if (projectLike is null)
-    {
-        return NotFound();
-    }
+        if (projectLike is null)
+        {
+            return NotFound();
+        }
 
-    updatedProjectLike.projectLikeId = projectLike.projectLikeId;
+        updatedProjectLike.projectLikeId = projectLike.projectLikeId;
 
-    await _projectLikeService.UpdateAsync(id, updatedProjectLike);
+        await _projectLikeService.UpdateAsync(id, updatedProjectLike);
 
-    return NoContent();
+        return NoContent();
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
-    var projectLike = await _projectLikeService.GetAsync(id);
-    if (projectLike is null)
-    {
-        return NotFound();
-    }
-    var project = await _projectService.GetAsync(projectLike.projectId!);
+        var projectLike = await _projectLikeService.GetAsync(id);
+        var userId = HttpContext.Request.Headers["userId"].ToString();
+        if (projectLike is null)
+        {
+            return NoContent();
+        }
 
-    if (project is null)
-    {
-        return NotFound("Project not found.");
-    }
+        if (projectLike.userId != userId)
+        {
+            return NoContent();
+        }
+        var project = await _projectService.GetAsync(projectLike.projectId!);
 
-    project.noOfLikes -= 1;
-    await _projectService.UpdateAsync(projectLike.projectId!, project);
+        if (project is null)
+        {
+            return NoContent();
+        }
+
+        project.noOfLikes -= 1;
+        await _projectService.UpdateAsync(projectLike.projectId!, project);
 
 
-    await _projectLikeService.RemoveAsync(id);
+        await _projectLikeService.RemoveAsync(id);
 
 
-    return NoContent();
+        return NoContent();
     }
 
     [HttpGet("get-by-projectid")]
@@ -126,7 +136,8 @@ public class ProjectLikeController : ControllerBase
 
     [HttpGet("get-by-userid-and-projectid")]
     [ProducesResponseType(typeof(ProjectLike), 200)]
-    public async Task<IActionResult> GetByUserIdAndProjectId([FromQuery] string userId, [FromQuery] string projectId) {
+    public async Task<IActionResult> GetByUserIdAndProjectId([FromQuery] string userId, [FromQuery] string projectId)
+    {
         var projectLike = await _projectLikeService.GetProjectLikeByUserIdAndProjectId(userId, projectId);
         if (projectLike is null)
         {
@@ -134,5 +145,5 @@ public class ProjectLikeController : ControllerBase
         }
         return Ok(projectLike);
     }
-        
+
 }

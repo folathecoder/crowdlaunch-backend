@@ -10,14 +10,14 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/user-nfts/[controller]")]
 public class UserNftController : ControllerBase
 {
     private readonly IUserNftService _userNftService;
     private readonly IMapper _mapper;
 
-    public UserNftController(IUserNftService userNftService, IMapper mapper) {
+    public UserNftController(IUserNftService userNftService, IMapper mapper)
+    {
         _userNftService = userNftService;
         _mapper = mapper;
     }
@@ -42,14 +42,15 @@ public class UserNftController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Post(UserNftCreateDto newUserNft)
-    {   
+    {
         var userId = HttpContext.Request.Headers["userId"].ToString();
         var existingUserNft = await _userNftService.GetUserNftByUserIdAndNftId(userId, newUserNft.nftId!);
 
         if (existingUserNft != null)
         {
-            return Conflict("User already owns this NFT");
+            return Ok(existingUserNft);
         }
 
         var userNft = _mapper.Map<UserNft>(newUserNft);
@@ -60,6 +61,7 @@ public class UserNftController : ControllerBase
     }
 
     [HttpPatch("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Update(string id, UserNft updatedUserNft)
     {
         var userNft = await _userNftService.GetAsync(id);
@@ -77,6 +79,7 @@ public class UserNftController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
         var userNft = await _userNftService.GetAsync(id);
@@ -99,7 +102,8 @@ public class UserNftController : ControllerBase
 
     [HttpGet("get-by-nftid")]
     [ProducesResponseType(typeof(UserNft), 200)]
-    public async Task<IActionResult> GetByNftId([FromQuery] string nftId)  {
+    public async Task<IActionResult> GetByNftId([FromQuery] string nftId)
+    {
         var userNft = await _userNftService.GetUserNftByNftId(nftId);
         if (userNft is null)
         {
@@ -110,7 +114,8 @@ public class UserNftController : ControllerBase
 
     [HttpGet("get-by-userid-nftid")]
     [ProducesResponseType(typeof(UserNft), 200)]
-    public async Task<IActionResult> GetByUserIdNftId([FromQuery] string userId, [FromQuery] string nftId)  {
+    public async Task<IActionResult> GetByUserIdNftId([FromQuery] string userId, [FromQuery] string nftId)
+    {
         var userNft = await _userNftService.GetUserNftByUserIdAndNftId(userId, nftId);
         if (userNft is null)
         {
@@ -118,5 +123,5 @@ public class UserNftController : ControllerBase
         }
         return Ok(userNft);
     }
-       
+
 }

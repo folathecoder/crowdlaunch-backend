@@ -10,14 +10,14 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/project-updates/[controller]")]
 public class ProjectUpdateController : ControllerBase
 {
     private readonly IProjectUpdateService _projectUpdateService;
     private readonly IMapper _mapper;
 
-    public ProjectUpdateController(IProjectUpdateService projectUpdateService, IMapper mapper) {
+    public ProjectUpdateController(IProjectUpdateService projectUpdateService, IMapper mapper)
+    {
         _projectUpdateService = projectUpdateService;
         _mapper = mapper;
     }
@@ -42,6 +42,7 @@ public class ProjectUpdateController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Post(ProjectUpdateCreateDto newProjectUpdate)
     {
         var projectUpdate = _mapper.Map<ProjectUpdate>(newProjectUpdate);
@@ -49,8 +50,9 @@ public class ProjectUpdateController : ControllerBase
 
         return CreatedAtAction(nameof(Get), new { id = projectUpdate.projectUpdateId }, projectUpdate);
     }
-    
+
     [HttpPatch("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Update(string id, ProjectUpdateCreateDto updatedProjectUpdate)
     {
 
@@ -70,6 +72,7 @@ public class ProjectUpdateController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
         var projectUpdate = await _projectUpdateService.GetAsync(id);

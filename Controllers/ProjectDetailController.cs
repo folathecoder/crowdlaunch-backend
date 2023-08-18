@@ -10,18 +10,18 @@ namespace MARKETPLACEAPI.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Consumes("application/json")]
-[Authorize]
 [Route("api/project-details/[controller]")]
 public class ProjectDetailController : ControllerBase
 {
     private readonly IProjectDetailService _projectDetailService;
     private readonly IMapper _mapper;
 
-    public ProjectDetailController(IProjectDetailService projectDetailService, IMapper mapper) {
+    public ProjectDetailController(IProjectDetailService projectDetailService, IMapper mapper)
+    {
         _projectDetailService = projectDetailService;
         _mapper = mapper;
     }
-        
+
 
     [HttpGet]
     [ProducesResponseType(typeof(IList<ProjectDetail>), 200)]
@@ -43,23 +43,25 @@ public class ProjectDetailController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Post(ProjectDetailCreateDto newProjectDetail)
     {
         var existingProjectDetail = await _projectDetailService.GetProjectDetailsByProjectId(newProjectDetail.projectId!);
 
-        // if (existingProjectDetail is not null)
-        // {
-        //     return Conflict("Project Details already exists for this project.");
-        // }
+        if (existingProjectDetail is not null)
+        {
+            return Conflict("Project Details already exists for this project.");
+        }
 
-    var projectDetail = _mapper.Map<ProjectDetail>(newProjectDetail);
+        var projectDetail = _mapper.Map<ProjectDetail>(newProjectDetail);
 
-    await _projectDetailService.CreateAsync(projectDetail);
+        await _projectDetailService.CreateAsync(projectDetail);
 
         return CreatedAtAction(nameof(Get), new { id = projectDetail.projectDetailId }, projectDetail);
     }
-    
+
     [HttpPatch("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Update(string id, ProjectDetailCreateDto updatedProjectDetail)
     {
         var projectDetail = await _projectDetailService.GetAsync(id);
@@ -77,6 +79,7 @@ public class ProjectDetailController : ControllerBase
     }
 
     [HttpDelete("{id:length(24)}")]
+    [Authorize]
     public async Task<IActionResult> Delete(string id)
     {
         var projectDetail = await _projectDetailService.GetAsync(id);

@@ -49,5 +49,7 @@ public class MappingProfiles : Profile
     CreateMap<User, UserUpdateDto>();
     CreateMap<UserNft, UserNftCreateDto>();
     CreateMap<UserNftCreateDto, UserNft>();
+    CreateMap<NftLikeCreateDto, NftLike>();
+    CreateMap<NftLike, NftLikeCreateDto>();
   }
 }
