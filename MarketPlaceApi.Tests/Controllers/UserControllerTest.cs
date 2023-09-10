@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 namespace MARKETPLACEAPI.Tests.Controllers;
 
 
-public class UserControllerTest 
+public class UserControllerTest
 {
   private readonly IUserService _mockUserService;
   private readonly IPortfolioService _mockPortfolioService;
@@ -27,12 +27,12 @@ public class UserControllerTest
   }
 
   [Fact]
-  public async Task GetUsers ()
+  public async Task GetUsers()
   {
     // Arrange
     var userController = new UserController(_mockUserService, _mockPortfolioService, _mockProjectService, _mockUserNftService, _mockProjectLikeService, _mockNftLikeService, _mapper);
     var users = A.Fake<IList<User>>();
-    
+
     A.CallTo(() => _mockUserService.GetAsync()).Returns(Task.FromResult(users));
 
     // Act
@@ -70,7 +70,7 @@ public class UserControllerTest
     A.CallTo(() => _mockProjectService.GetProjectsByUserId("1")).Returns(Task.FromResult(listedProjects));
 
 
-    
+
 
     // Assert
     result.Should().NotBeNull();
@@ -85,7 +85,7 @@ public class UserControllerTest
     // Arrange
     var userController = new UserController(_mockUserService, _mockPortfolioService, _mockProjectService, _mockUserNftService, _mockProjectLikeService, _mockNftLikeService, _mapper);
     userController.ControllerContext.HttpContext = new DefaultHttpContext();
-    userController.ControllerContext.HttpContext.Request.Headers["userId"] = "1";    var userDto = A.Fake<UserUpdateDto>();
+    userController.ControllerContext.HttpContext.Request.Headers["userId"] = "1"; var userDto = A.Fake<UserUpdateDto>();
 
     var user = A.Fake<User>();
     A.CallTo(() => _mockUserService.GetAsync("1")).Returns(Task.FromResult(user));
@@ -145,8 +145,8 @@ public class UserControllerTest
   public async Task GetMe_ReturnsOkResult()
   {
     // Arrange
-    var userController = new UserController(_mockUserService, _mockPortfolioService, 
-    _mockProjectService, _mockUserNftService, _mockProjectLikeService, 
+    var userController = new UserController(_mockUserService, _mockPortfolioService,
+    _mockProjectService, _mockUserNftService, _mockProjectLikeService,
     _mockNftLikeService, _mapper);
     userController.ControllerContext.HttpContext = new DefaultHttpContext();
     userController.ControllerContext.HttpContext.Request.Headers["userId"] = "1";

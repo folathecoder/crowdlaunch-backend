@@ -133,7 +133,7 @@ public class PortfolioControllerTest
 
     A.CallTo(() => _mockPortfolioService.GetPortfolioByUserId("1")).Returns(Task.FromResult(portfolio));
     var controller = new PortfolioController(_mockPortfolioService, _mockProjectService, _mapper);
-    
+
     //Act
     var result = await controller.GetPortfolioByUserId("1");
 
@@ -143,7 +143,7 @@ public class PortfolioControllerTest
     var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
     okResult.StatusCode.Should().Be(200);
     okResult.Value.Should().Be(portfolio);
-   
+
   }
 
   [Fact]
@@ -153,8 +153,8 @@ public class PortfolioControllerTest
     var portfolio = A.Fake<Portfolio>();
     A.CallTo(() => _mockPortfolioService.GetPortfolioByProjectId("1")).Returns(Task.FromResult(portfolio));
     var controller = new PortfolioController(_mockPortfolioService, _mockProjectService, _mapper);
-    
-    
+
+
     //Act
     var result = await controller.GetPortfolioByProjectId("1");
 

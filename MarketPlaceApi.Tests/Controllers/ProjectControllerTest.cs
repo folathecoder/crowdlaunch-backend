@@ -48,7 +48,7 @@ public class ProjectControllerTest
     A.CallTo(() => _mockProjectService.GetAsync("1")).Returns(Task.FromResult(project));
     var controller = new ProjectController(_mockProjectService, _mockProjectUpdateService, _mockProjectDetailService, _mockCategoryService, _mapper);
 
-    
+
     //Act
     var result = await controller.Get("1");
 
@@ -172,7 +172,7 @@ public class ProjectControllerTest
 
     //Act
     var result = await controller.SearchProjects("1", true);
-    
+
     //Assert
     result.Should().NotBeNull();
     result.Should().BeOfType<OkObjectResult>();
@@ -193,7 +193,7 @@ public class ProjectControllerTest
 
     //Act
     var result = await controller.GetProjectByWalletAddress("1");
-    
+
     //Assert
     result.Should().NotBeNull();
     result.Should().BeOfType<OkObjectResult>();

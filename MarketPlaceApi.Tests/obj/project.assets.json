@@ -8584,19 +8584,19 @@
     ]
   },
   "packageFolders": {
-    "/home/gideon/.nuget/packages/": {}
+    "/Users/user/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/gideon/Documents/projects/dotnet/folzy/MarketPlaceApi.Tests/MarketPlaceApi.Tests.csproj",
+      "projectUniqueName": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/MarketPlaceApi.Tests/MarketPlaceApi.Tests.csproj",
       "projectName": "MarketPlaceApi.Tests",
-      "projectPath": "/home/gideon/Documents/projects/dotnet/folzy/MarketPlaceApi.Tests/MarketPlaceApi.Tests.csproj",
-      "packagesPath": "/home/gideon/.nuget/packages/",
-      "outputPath": "/home/gideon/Documents/projects/dotnet/folzy/MarketPlaceApi.Tests/obj/",
+      "projectPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/MarketPlaceApi.Tests/MarketPlaceApi.Tests.csproj",
+      "packagesPath": "/Users/user/.nuget/packages/",
+      "outputPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/MarketPlaceApi.Tests/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/gideon/.nuget/NuGet/NuGet.Config"
+        "/Users/user/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
@@ -8608,8 +8608,8 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "/home/gideon/Documents/projects/dotnet/folzy/MarketPlaceApi/BookStoreApi.csproj": {
-              "projectPath": "/home/gideon/Documents/projects/dotnet/folzy/MarketPlaceApi/BookStoreApi.csproj"
+            "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/MarketPlaceApi/BookStoreApi.csproj": {
+              "projectPath": "/Users/user/Documents/projects/masters-project/crowdlaunch-backend/MarketPlaceApi/BookStoreApi.csproj"
             }
           }
         }
@@ -8668,12 +8668,22 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[6.0.21, 6.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[6.0.21, 6.0.21]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/6.0.413/RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.400/RuntimeIdentifierGraph.json"
       }
     }
   }

@@ -53,44 +53,44 @@ public class NftLikeControllerTest
     okResult.Value.Should().Be(nftLike);
   }
 
-  
+
 
   [Fact]
   public async Task PostNftLike_ReturnsCreatedAtActionResult()
   {
-      // Arrange
-      var nftLikeDto = new NftLikeCreateDto
+    // Arrange
+    var nftLikeDto = new NftLikeCreateDto
+    {
+      nftId = "1"
+    };
+    var nftLike = _mapper.Map<NftLike>(nftLikeDto);
+
+    // Mock the _nftService.GetAsync method to return a valid nft object
+    A.CallTo(() => _mockNftService.GetAsync(nftLike.nftId)).Returns(Task.FromResult(A.Fake<Nft>()));
+
+    // Mock the _nftLikeService.GetNftLikeByUserIdAndNftId to return null
+    A.CallTo(() => _mockNftLikeService.GetNftLikeByUserIdAndNftId("1", "1")).Returns(Task.FromResult((NftLike)null));
+
+    // Set up the HttpContext with the required header
+    var httpContext = new DefaultHttpContext();
+    httpContext.Request.Headers["userId"] = "1";
+
+    var controller = new NftLikeController(_mockNftLikeService, _mockNftService, _mapper)
+    {
+      ControllerContext = new ControllerContext
       {
-          nftId = "1"
-      };
-      var nftLike = _mapper.Map<NftLike>(nftLikeDto);
-
-      // Mock the _nftService.GetAsync method to return a valid nft object
-      A.CallTo(() => _mockNftService.GetAsync(nftLike.nftId)).Returns(Task.FromResult(A.Fake<Nft>()));
-
-      // Mock the _nftLikeService.GetNftLikeByUserIdAndNftId to return null
-      A.CallTo(() => _mockNftLikeService.GetNftLikeByUserIdAndNftId("1", "1")).Returns(Task.FromResult((NftLike)null));
-
-      // Set up the HttpContext with the required header
-      var httpContext = new DefaultHttpContext();
-      httpContext.Request.Headers["userId"] = "1";
-
-      var controller = new NftLikeController(_mockNftLikeService, _mockNftService, _mapper)
-      {
-          ControllerContext = new ControllerContext
-          {
-              HttpContext = httpContext
-          }
-      };
+        HttpContext = httpContext
+      }
+    };
 
     // Act
-      var result = await controller.Post(nftLikeDto);
+    var result = await controller.Post(nftLikeDto);
 
-      // Assert
-      result.Should().NotBeNull();
-      result.Should().BeOfType<CreatedAtActionResult>();
-      var createdAtResult = result.Should().BeOfType<CreatedAtActionResult>().Subject;
-      createdAtResult.StatusCode.Should().Be(201);
+    // Assert
+    result.Should().NotBeNull();
+    result.Should().BeOfType<CreatedAtActionResult>();
+    var createdAtResult = result.Should().BeOfType<CreatedAtActionResult>().Subject;
+    createdAtResult.StatusCode.Should().Be(201);
 
   }
 
@@ -140,7 +140,7 @@ public class NftLikeControllerTest
     A.CallTo(() => _mockNftLikeService.GetNftLikesByUserId("1")).Returns(Task.FromResult(nftLikes));
 
     var controller = new NftLikeController(_mockNftLikeService, _mockNftService, _mapper);
-    
+
 
     //Act
     var result = await controller.GetNftLikesByUserId("1");
@@ -172,6 +172,6 @@ public class NftLikeControllerTest
     var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
     okResult.StatusCode.Should().Be(200);
     okResult.Value.Should().Be(nftLike);
-    
+
   }
 }
