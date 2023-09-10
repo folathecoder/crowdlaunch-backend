@@ -1,0 +1,5 @@
+# flyctl launch added from MarketPlaceApi/.gitignore
+MarketPlaceApi/.vscode
+MarketPlaceApi/**/.env
+MarketPlaceApi/**/exceptions.log
+MarketPlaceApi/**/fly.toml

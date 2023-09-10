@@ -1,3 +1,5 @@
 {
-  "dotnet.defaultSolution": "crowdlaunch-backend.sln"
+  "dotnet.defaultSolution": "crowdlaunch-backend.sln",
+  "docify.commentService.sidePanelReviewMode": true,
+  "docify.commentService.programmingLanguage": "c_sharp"
 }
